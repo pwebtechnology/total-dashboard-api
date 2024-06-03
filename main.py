@@ -101,6 +101,13 @@ async def total_data_compare():
 async def get_builder_data_total():
     return data
 
+@app.route('/test', methods = ['GET','OPTIONS'])
+async def test():
+    x = '{ "name":"John", "age":30, "city":"New York"}'
+    data = json.dumps(x)
+    response = Response(data, content_type='application/json')
+    return response
+
 
 @app.route('/get_builder_data_props', methods = ['GET','OPTIONS'])# params = created_from , created_to , ftd_from , ftd_to , registered_from , registered_to , group_by[]
 async def get_builder_data_props():
@@ -113,7 +120,7 @@ async def get_builder_data_props():
    # response.headers.add("ngrok-skip-browser-warning", 'true')
     return response
 
-asyncio.run(app.run(host='0.0.0.0', port=5000))
+asyncio.run(app.run(debug=True, host='0.0.0.0', port=5000))
 # strart = time.time()
 # end = time.time()
 # print("time exec", end - strart)
