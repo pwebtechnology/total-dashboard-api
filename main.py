@@ -113,7 +113,8 @@ async def get_builder_data_props():
    # response.headers.add("ngrok-skip-browser-warning", 'true')
     return response
 
+if __name__ == "__main__":
+    asyncio.run(app.run(host='0.0.0.0', port=5000))
 # strart = time.time()
-asyncio.run(app.run(host='0.0.0.0', port=5000))
 # end = time.time()
 # print("time exec", end - strart)
