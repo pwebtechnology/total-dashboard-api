@@ -101,17 +101,6 @@ async def total_data_compare():
 async def get_builder_data_total():
     return data
 
-@app.route('/test', methods = ['GET','OPTIONS'])
-async def test():
-    x = '{ "name":"John", "age":30, "city":"New York"}'
-    data = json.dumps(x)
-    response = Response(data, content_type='application/json')
-    response.headers.add("Access-Control-Allow-Origin", "*")
-    response.headers.add("Access-Control-Allow-Headers", "Content-Type, Authorization, ngrok-skip-browser-warning , Access-Control-Allow-Headers, Access-Control-Allow-Origin, Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers")
-    response.headers.add("Access-Control-Allow-Credentials", "true")
-    response.headers.add("ngrok-skip-browser-warning", "true")
-    return response
-
 
 @app.route('/get_builder_data_props', methods = ['GET','OPTIONS'])# params = created_from , created_to , ftd_from , ftd_to , registered_from , registered_to , group_by[]
 async def get_builder_data_props():
