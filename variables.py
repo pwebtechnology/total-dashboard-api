@@ -208,8 +208,6 @@ prev_day = date.today() - timedelta(1)
 previous_day_date = datetime.combine(prev_day, datetime.max.time())
 previous_day_date_str = prev_day.strftime("%Y-%m-%d")
 
-print(previous_day_date)
-
 conv_parameters = {
     'database': "admin",
     'queryAll': [

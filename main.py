@@ -19,7 +19,7 @@ async def total_data_no_params():
         response.headers.add("Access-Control-Allow-Origin", "*")
         response.headers.add("Access-Control-Allow-Methods", "GET, OPTIONS")
         response.headers.add("Access-Control-Allow-Headers",
-                             "Content-Type, Authorization, ngrok-skip-browser-warning, Access-Control-Allow-Headers, Access-Control-Allow-Origin, Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers")
+                             "Content-Type, Authorization, Access-Control-Allow-Headers, Access-Control-Allow-Origin, Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers")
         response.headers.add("Access-Control-Allow-Credentials", "true")
         response.headers.add("ngrok-skip-browser-warning", "true")
     else:
@@ -28,7 +28,7 @@ async def total_data_no_params():
         response = Response(data, content_type='application/json')
         response.headers.add("Access-Control-Allow-Origin", "*")
         response.headers.add("Access-Control-Allow-Headers",
-                             "Content-Type, Authorization, ngrok-skip-browser-warning , Access-Control-Allow-Headers, Access-Control-Allow-Origin, Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers")
+                             "Content-Type, Authorization, Access-Control-Allow-Headers, Access-Control-Allow-Origin, Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers")
         response.headers.add("Access-Control-Allow-Credentials", "true")
         response.headers.add("ngrok-skip-browser-warning", "true")
 
@@ -53,8 +53,7 @@ async def total_data_prev_day():
         'affiliates': request.args.getlist('affiliates[]'),
         'divider': request.args.get('divider')
     }
-    print(props)
-    print(request.args)
+
     data = await getTotalAffilatesDataCompare(props)
     response = Response(data, content_type='application/json')
 '''
@@ -69,7 +68,7 @@ async def total_data_prev_day():
         response.headers.add("Access-Control-Allow-Origin", "*")
         response.headers.add("Access-Control-Allow-Methods", "GET, OPTIONS")
         response.headers.add("Access-Control-Allow-Headers",
-                             "Content-Type, Authorization, ngrok-skip-browser-warning, Access-Control-Allow-Headers, Access-Control-Allow-Origin, Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers")
+                             "Content-Type, Authorization, Access-Control-Allow-Headers, Access-Control-Allow-Origin, Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers")
         response.headers.add("Access-Control-Allow-Credentials", "true")
         response.headers.add("ngrok-skip-browser-warning", "true")
     else:
@@ -78,7 +77,7 @@ async def total_data_prev_day():
         response = Response(data, content_type='application/json')
         response.headers.add("Access-Control-Allow-Origin", "*")
         response.headers.add("Access-Control-Allow-Headers",
-                             "Content-Type, Authorization, ngrok-skip-browser-warning , Access-Control-Allow-Headers, Access-Control-Allow-Origin, Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers")
+                             "Content-Type, Authorization, Access-Control-Allow-Headers, Access-Control-Allow-Origin, Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers")
         response.headers.add("Access-Control-Allow-Credentials", "true")
         response.headers.add("ngrok-skip-browser-warning", "true")
 
@@ -93,21 +92,15 @@ async def total_data_compare():
         'affiliates': request.args.getlist('affiliates[]'),
         'divider': request.args.get('divider')
     }
-    print(props)
-    print(request.args)
+
     data = await getTotalAffilatesDataCompare(props)
     response = Response(data, content_type='application/json')
     response.headers.add("Access-Control-Allow-Origin", "*")
     response.headers.add("Access-Control-Allow-Headers",
-                         "Content-Type, Authorization, ngrok-skip-browser-warning , Access-Control-Allow-Headers, Access-Control-Allow-Origin, Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers")
+                         "Content-Type, Authorization, Access-Control-Allow-Headers, Access-Control-Allow-Origin, Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers")
     response.headers.add("Access-Control-Allow-Credentials", "true")
     response.headers.add("ngrok-skip-browser-warning", "true")
     return response
-
-
-# loop = asyncio.get_event_loop()
-# loop.run_until_complete(app.run(host='127.0.0.1', port=5000))
-
 
 @app.route('/get_builder_data_total', methods=['GET', 'OPTIONS'])
 async def get_builder_data_total():
@@ -124,15 +117,11 @@ async def get_builder_data_props():
 
     response = jsonify(data)
     response.headers.add("Access-Control-Allow-Origin", "*")
-    response.headers.add("ngrok-skip-browser-warning", '69420')
     response.headers.add("Access-Control-Allow-Headers",
-                         "Content-Type, Authorization, ngrok-skip-browser-warning, Access-Control-Allow-Headers, Access-Control-Allow-Origin, Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers")
+                         "Content-Type, Authorization, Access-Control-Allow-Headers, Access-Control-Allow-Origin, Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers")
     response.headers.add("Access-Control-Allow-Credentials", "true")
 
     return response
 
 
 asyncio.run(app.run(debug=True, host='0.0.0.0', port=5000))
-# strart = time.time()
-# end = time.time()
-# print("time exec", end - strart)
