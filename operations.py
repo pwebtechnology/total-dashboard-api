@@ -759,18 +759,15 @@ async def get_total_affiliates_data_prev_day():
     return json.dumps(result)
 
 # print(asyncio.run(get_total_affiliates_data()))
-async def get_total_builder_data():
+async def get_total_builder_data(page, page_size):
     st = time.time()
     ret, conv = await asyncio.gather(
         get_retention_data_builder(),
         get_conversion_data_builder(),
-        #execute_data_from_payment()
     )
 
     result = []
     for trader_id, data in conv.items():
-        #payment = next((row for row in payment_answers if row['affiliate'] == affilate), None)
-        #traffic_cost = payment['payment'] if payment else 0
         ret_trader = ret.get(trader_id, None)
         Net = ret_trader['Total_NET'] if ret_trader else 0
         WD = ret_trader['Total_WD'] if ret_trader else 0
@@ -780,8 +777,6 @@ async def get_total_builder_data():
         WD_Rate = ret_trader['WD_Rate'] if ret_trader else 0
         UnAssigned_Tickets = ret_trader['UnAssigned_Tickets'] if ret_trader else 0
         FTDs = data.get('FTDs')
-        #ROMI = (Net - traffic_cost) / traffic_cost if traffic_cost else 0
-        #CPA = traffic_cost / FTDs if FTDs else 0
 
         result.append({
             'Trader': trader_id,
@@ -791,17 +786,38 @@ async def get_total_builder_data():
             'PV': round(PV),
             'STDs': STDs,
             'STD Rate': get_percent(STD_Rate),
-            #'ROMI': get_percent(ROMI),
             'WD Rate': get_percent(WD_Rate),
             'UnAssigned Tickets': get_percent(UnAssigned_Tickets),
-            #'CPA actual': round(CPA),
         })
 
     result.sort(key=lambda x: x['FTDs'], reverse=True)
-    #print(json.dumps(result))
+
+    # Pagination logic
+    total_items = len(result)
+    total_pages = math.ceil(total_items / page_size)
+
+    if page < 1:
+        page = 1
+    elif page > total_pages:
+        page = total_pages
+
+    start_index = (page - 1) * page_size
+    end_index = start_index + page_size
+    paginated_data = result[start_index:end_index]
+
+    response_payload = {
+        'data': paginated_data,
+        'pagination': {
+            'page': page,
+            'page_size': page_size,
+            'total_items': total_items,
+            'total_pages': total_pages
+        }
+    }
+
     nd = time.time()
     print("total time", nd - st)
-    return json.dumps(result)
+    return response_payload
 
 async def get_total_builder_data_props():
     st = time.time()
@@ -824,8 +840,8 @@ async def get_total_builder_data_props():
         WD_Rate = ret_affiliate['WD_Rate'] if ret_affiliate else 0
         UnAssigned_Tickets = ret_affiliate['UnAssigned_Tickets'] if ret_affiliate else 0
         FTDs = data.get('FTDs')
-        ROMI = (Net - traffic_cost) / traffic_cost if traffic_cost else 0
-        CPA = traffic_cost / FTDs if FTDs else 0
+        #ROMI = (Net - traffic_cost) / traffic_cost if traffic_cost else 0
+        #CPA = traffic_cost / FTDs if FTDs else 0
 
         result.append({
             'Trader': trader_id,
