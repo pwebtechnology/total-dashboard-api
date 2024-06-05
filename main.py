@@ -121,6 +121,9 @@ async def get_builder_data_props():
 
     response = jsonify(data)
     response.headers.add("Access-Control-Allow-Origin", "*")
+
+    response.headers.add("ngrok-skip-browser-warning", '69420')
+
     response.headers.add("Access-Control-Allow-Headers",
                          "Content-Type, Authorization, Access-Control-Allow-Headers, Access-Control-Allow-Origin, Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers")
     response.headers.add("Access-Control-Allow-Credentials", "true")
