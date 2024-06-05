@@ -123,7 +123,7 @@ async def get_builder_data_props():
     data = await get_total_builder_data(page, page_size)
 
     response = jsonify(data)
-    response.headers.add("Access-Control-Allow-Origin", "https://deep-traff-analysis.vercel.app")
+    response.headers.add("Access-Control-Allow-Origin", "*")
     response.headers.add("ngrok-skip-browser-warning", '69420')
     response.headers.add("Access-Control-Allow-Headers",
                          "Content-Type, Authorization, ngrok-skip-browser-warning, Access-Control-Allow-Headers, Access-Control-Allow-Origin, Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers")
