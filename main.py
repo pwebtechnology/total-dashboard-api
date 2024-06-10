@@ -113,12 +113,10 @@ async def get_builder_data_props():
     props = {
         'startDate': request.args.get('startDate'),
         'endDate': request.args.get('endDate'),
-        'pageIndex': request.args.getlist('pageIndex'),
+        'pageIndex': request.args.get('pageIndex'),
         'pageSize': request.args.get('pageSize')
     }
     #metrix = str()
-    print(props['pageSize'])
-    pritn(type(props['pageSize']))
     data = await get_total_builder_data(props)
 
     response = jsonify(data)
