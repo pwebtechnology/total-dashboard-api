@@ -51,30 +51,13 @@ def queryConvCompare(props):
     ]
 
 def queryConvCompareBuilder(props):
-    startDate = props['startDate']
-    endDate = props['endDate']
-    startDate = datetime.strptime(startDate, utcDateFormat)
-    endDate = datetime.strptime(endDate, utcDateFormat)
+
     page_number = int(props['pageIndex'])
     page_size = int(props['pageSize'])
     skip_count = (page_number - 1) * page_size
     return [
         {"$match": {
             "Trader_Sale_Status": {"$ne": "Test"},
-            "$or": [
-                {
-                    "Trader_Ftd_Date": {
-                        "$gte": startDate,
-                        "$lt": endDate,
-                    }
-                },
-                {
-                    "Trader_Registered_At": {
-                        "$gte": startDate,
-                        "$lt": endDate,
-                    }
-                },
-            ]
         }},
         {"$skip": skip_count},
         {"$limit": page_size}
@@ -120,10 +103,6 @@ def queryRetCompare(props):
 
 
 def queryRetCompareBuilder(props):
-    startDate = props['startDate']
-    endDate = props['endDate']
-    startDate = datetime.strptime(startDate, utcDateFormat)
-    endDate = datetime.strptime(endDate, utcDateFormat)
     page_number = int(props['pageIndex'])
     page_size = int(props['pageSize'])
     skip_count = (page_number - 1) * page_size
@@ -132,20 +111,7 @@ def queryRetCompareBuilder(props):
             "Ticket_Method": {"$ne": "Qiwi"},
             "Ticket_Status": "Approved",
             "Desk_Desk_Name": {"$ne": "Test"},
-            "$or": [
-                {
-                    "Trader_Ftd_Date": {
-                        "$gte": startDate,
-                        "$lt": endDate,
-                    }
-                },
-                {
-                    "Ticket_Created_At": {
-                        "$gte": startDate,
-                        "$lt": endDate,
-                    }
-                },
-            ]}
+        }
         },
         {"$skip": skip_count},
         {"$limit": page_size}
@@ -274,18 +240,6 @@ conv_parameters_builder = {
         {
             "$match": {
                 "Trader_Sale_Status": {"$ne": 'Test'},
-                "$or": [
-                    {
-                        "Trader_Ftd_Date": {
-                            "$lt": previous_day_date,
-                        }
-                    },
-                    {
-                        "Trader_Registered_At": {
-                            "$lt": previous_day_date,
-                        }
-                    },
-                ],
                 "Trader_Ftd_Date": {"$ne": "Empty"},
                 "Trader_Registered_At": {"$ne": "Empty"},
             }
@@ -352,18 +306,6 @@ ret_parameters_builder = {
                 "Ticket_Method": {"$ne": "Qiwi"},
                 "Ticket_Status": "Approved",
                 "Desk_Desk_Name": {"$ne": "Test"},
-                "$or": [
-                    {
-                        "Trader_Ftd_Date": {
-                            "$lt": previous_day_date,
-                        }
-                    },
-                    {
-                        "Ticket_Created_At": {
-                            "$lt": previous_day_date,
-                        }
-                    },
-                ],
                 "Trader_Ftd_Date": {"$ne": "Empty"},
                 "Ticket_Created_At": {"$ne": "Empty"},
             }
