@@ -316,7 +316,7 @@ async def get_conversion_data():
 
     return result
 
-async def get_conversion_data_builder():
+async def get_conversion_data_builder(props):
     st = time.time()
     data = await execute_data_from_conversion_crm()
 
@@ -411,12 +411,12 @@ async def get_retention_data():
 
     return result
 
-async def get_retention_data_builder():
+async def get_retention_data_builder(props):
     st = time.time()
     result = {}
-    data = await execute_data_from_retention_crm()
+    data = await execute_data_from_retention_crm(props)
     preparedData = {}
-
+    
     for row in data:
         trader_id = row['Trader_ID']
 
@@ -747,8 +747,8 @@ async def get_total_affiliates_data_prev_day():
 async def get_total_builder_data(props):
     st = time.time()
     ret, conv = await asyncio.gather(
-        get_retention_data_builder(),
-        get_conversion_data_builder(),
+        get_retention_data_builder(props),
+        get_conversion_data_builder(props),
     )
 
     result = []

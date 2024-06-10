@@ -64,11 +64,11 @@ async def execute_data_from_conversion_crm(props=None):
 async def execute_data_from_conversion_crm_prev_day():
     database = conv_parameters['database']
     query = conv_parameters['queryPrevDay']
-    result = await execute_data_from_crm(database, conv_collections, query)
+    result = await execte_data_from_crm(database, conv_collections, query)
 
     return result
 
-async def execute_data_from_conversion_crm_builder(props=None):
+async def execute_data_from_conversion_crm_builder(props):
     database = conv_parameters_builder['database']
     query = conv_parameters_builder['query']
     queryAll = conv_parameters_builder['queryAll']
@@ -94,7 +94,7 @@ async def execute_data_from_retention_crm_prev_day(props=None):
 
     return result
 
-async def execute_data_from_retention_crm_builder(props=None):
+async def execute_data_from_retention_crm_builder(props):
     database = ret_parameters_builder['database']
     query = ret_parameters_builder['query']
     queryAll = ret_parameters_builder['queryAll']
