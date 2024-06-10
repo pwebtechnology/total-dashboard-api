@@ -318,7 +318,7 @@ async def get_conversion_data():
 
 async def get_conversion_data_builder(props):
     st = time.time()
-    data = await execute_data_from_conversion_crm()
+    data = await execute_data_from_conversion_crm_builder()
 
     preparedData = defaultdict(lambda: {'FTDs': 0, 'Leads': 0, 'na_counters': 0, 'unassigned': 0, 'pool': 0, 'assigned': 0, 'total_calls': 0, 'login': 0, 'not_login': 0})
 
