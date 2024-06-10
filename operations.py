@@ -744,7 +744,7 @@ async def get_total_affiliates_data_prev_day():
 
     return json.dumps(result)
 
-async def get_total_builder_data(page, page_size):
+async def get_total_builder_data(props):
     st = time.time()
     ret, conv = await asyncio.gather(
         get_retention_data_builder(),
@@ -776,7 +776,8 @@ async def get_total_builder_data(page, page_size):
         })
 
     result.sort(key=lambda x: x['FTDs'], reverse=True)
-
+    page_size = int(props['pageSize'])
+    page = int(props['pageIndex'])
     # Pagination logic
     total_items = len(result)
     total_pages = math.ceil(total_items / page_size)
@@ -793,8 +794,8 @@ async def get_total_builder_data(page, page_size):
     response_payload = {
         'data': paginated_data,
         'pagination': {
-            'page': page,
-            'page_size': page_size,
+            'pageIndex': page,
+            'pageSize': page_size,
             'total_items': total_items,
             'total_pages': total_pages
         }
@@ -804,9 +805,9 @@ async def get_total_builder_data(page, page_size):
 
     return response_payload
 
-async def get_total_builder_data_props():
+async def get_total_builder_data_props(props):
     st = time.time()
-    ret, conv, payment_answers = await asyncio.gather(
+    ret, conv = await asyncio.gather(
         get_retention_data_builder(),
         get_conversion_data_builder(),
         #execute_data_from_payment_prev_day()

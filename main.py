@@ -110,13 +110,20 @@ async def get_builder_data_total():
 @app.route('/get_builder_data_props', methods=['GET',
                                                'OPTIONS'])  # params = created_from , created_to , ftd_from , ftd_to , registered_from , registered_to , group_by[]
 async def get_builder_data_props():
-    page = int(request.args.get('page', 1))
-    page_size = int(request.args.get('page_size', 10))
-
-    data = await get_total_builder_data(page, page_size)
+    props = {
+        'startDate': request.args.get('startDate'),
+        'endDate': request.args.get('endDate'),
+        'pageIndex': request.args.getlist('pageIndex'),
+        'pageSize': request.args.get('pageSize')
+    }
+    #metrix = str()
+    data = await get_total_builder_data(props)
 
     response = jsonify(data)
     response.headers.add("Access-Control-Allow-Origin", "*")
+
+    response.headers.add("ngrok-skip-browser-warning", '69420')
+
     response.headers.add("Access-Control-Allow-Headers",
                          "Content-Type, Authorization, Access-Control-Allow-Headers, Access-Control-Allow-Origin, Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers")
     response.headers.add("Access-Control-Allow-Credentials", "true")
