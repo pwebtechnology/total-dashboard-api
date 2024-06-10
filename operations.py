@@ -414,7 +414,7 @@ async def get_retention_data():
 async def get_retention_data_builder(props):
     st = time.time()
     result = {}
-    data = await execute_data_from_retention_crm(props)
+    data = await execute_data_from_retention_crm_builder(props)
     preparedData = {}
     
     for row in data:
