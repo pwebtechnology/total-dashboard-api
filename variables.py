@@ -55,6 +55,9 @@ def queryConvCompareBuilder(props):
     endDate = props['endDate']
     startDate = datetime.strptime(startDate, utcDateFormat)
     endDate = datetime.strptime(endDate, utcDateFormat)
+    page_number = int(props['pageIndex'])
+    page_size = int(props['pageSize'])
+    skip_count = (page_number - 1) * page_size
     return [
         {"$match": {
             "Trader_Sale_Status": {"$ne": "Test"},
@@ -72,7 +75,9 @@ def queryConvCompareBuilder(props):
                     }
                 },
             ]
-        }}
+        }},
+        {"$skip": skip_count},
+        {"$limit": page_size}
     ]
 
 
@@ -119,7 +124,9 @@ def queryRetCompareBuilder(props):
     endDate = props['endDate']
     startDate = datetime.strptime(startDate, utcDateFormat)
     endDate = datetime.strptime(endDate, utcDateFormat)
-
+    page_number = int(props['pageIndex'])
+    page_size = int(props['pageSize'])
+    skip_count = (page_number - 1) * page_size
     return [
         {"$match": {
             "Ticket_Method": {"$ne": "Qiwi"},
@@ -139,7 +146,9 @@ def queryRetCompareBuilder(props):
                     }
                 },
             ]}
-        }
+        },
+        {"$skip": skip_count},
+        {"$limit": page_size}
     ]
 
 def paymentsQuery(props):
@@ -208,8 +217,6 @@ prev_day = date.today() - timedelta(1)
 previous_day_date = datetime.combine(prev_day, datetime.max.time())
 previous_day_date_str = prev_day.strftime("%Y-%m-%d")
 
-print(previous_day_date)
-
 conv_parameters = {
     'database': "admin",
     'queryAll': [
@@ -264,7 +271,6 @@ conv_parameters_builder = {
     ],
     'query': queryConvCompareBuilder,
     'queryPrevDay': [
-
         {
             "$match": {
                 "Trader_Sale_Status": {"$ne": 'Test'},
@@ -285,6 +291,7 @@ conv_parameters_builder = {
             }
         },
     ],
+    'pagination': True
 }
 
 
@@ -340,7 +347,6 @@ ret_parameters = {
 ret_parameters_builder = {
     'database': "retention",
     'queryPrevDay': [
-
         {
             "$match": {
                 "Ticket_Method": {"$ne": "Qiwi"},
@@ -365,7 +371,6 @@ ret_parameters_builder = {
     ],
     'query': queryRetCompareBuilder,
     'queryAll': [
-
         {
             "$match": {
                 "Ticket_Method": {"$ne": "Qiwi"},
@@ -374,6 +379,7 @@ ret_parameters_builder = {
             }
         },
     ],
+    'pagination': True
 }
 
 payment_parametrs = {

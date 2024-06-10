@@ -48,7 +48,6 @@ async def get_retention_data_compare(props):
                     'unassigned': 0
                 }
 
-            # print(Ticket_Created_At, type(Ticket_Created_At), row['Ticket_ID'], row['Brand'])
             if is_date(Ticket_Created_At, item_start, item_end):
                 current_data[affiliate]['count_of_records'] += 1
                 current_data[affiliate]['unassigned'] += 1 if check_unassigned(
@@ -119,7 +118,6 @@ async def get_retention_data_compare_buider(props):
                     'unassigned': 0
                 }
 
-            # print(Ticket_Created_At, type(Ticket_Created_At), row['Ticket_ID'], row['Brand'])
             if is_date(Ticket_Created_At, item_start, item_end):
                 current_data[trader_id]['count_of_records'] += 1
                 current_data[trader_id]['unassigned'] += 1 if check_unassigned(
@@ -280,7 +278,6 @@ async def get_conversion_data_compare_builder(props):
 async def get_conversion_data():
     st = time.time()
     data = await execute_data_from_conversion_crm()
-    print("conversion call time", (time.time() - st))
 
     preparedData = defaultdict(lambda: {'FTDs': 0, 'Leads': 0, 'na_counters': 0, 'unassigned': 0, 'pool': 0, 'assigned': 0, 'total_calls': 0, 'login': 0, 'not_login': 0})
 
@@ -317,13 +314,11 @@ async def get_conversion_data():
         for affilate, affilateData in preparedData.items()
     }
 
-    print("conversion total time", (time.time() - st))
     return result
 
 async def get_conversion_data_builder():
     st = time.time()
     data = await execute_data_from_conversion_crm()
-    print("conversion call time", (time.time() - st))
 
     preparedData = defaultdict(lambda: {'FTDs': 0, 'Leads': 0, 'na_counters': 0, 'unassigned': 0, 'pool': 0, 'assigned': 0, 'total_calls': 0, 'login': 0, 'not_login': 0})
 
@@ -360,7 +355,6 @@ async def get_conversion_data_builder():
         for trader, traderData in preparedData.items()
     }
 
-    print("conversion total time", (time.time() - st))
     return result
 
 
@@ -369,7 +363,6 @@ async def get_retention_data():
     st = time.time()
     result = {}
     data = await execute_data_from_retention_crm()
-    print("retention call time", (time.time() - st))
     preparedData = {}
 
     for row in data:
@@ -415,15 +408,13 @@ async def get_retention_data():
             'count_of_records'] if isRecords else 0
         result[affilate]['UnAssigned_Tickets'] = affilateData['unassigned'] / affilateData[
             'count_of_records'] if isRecords else 0
-    # print(result)
-    print("retention total time", (time.time() - st))
+
     return result
 
 async def get_retention_data_builder():
     st = time.time()
     result = {}
     data = await execute_data_from_retention_crm()
-    print("retention call time", (time.time() - st))
     preparedData = {}
 
     for row in data:
@@ -466,8 +457,7 @@ async def get_retention_data_builder():
             'count_of_records'] if isRecords else 0
         result[trader_id]['UnAssigned_Tickets'] = traderData['unassigned'] / traderData[
             'count_of_records'] if isRecords else 0
-    # print(result)
-    print("retention total time", (time.time() - st))
+
     return result
 
 
@@ -550,7 +540,7 @@ async def get_conversion_data_prev_day():
             'Login': login,
             'NA Counters': na_counters,
         }
-    # print(result)
+
     return result
 
 async def get_retention_data_prev_day():
@@ -597,8 +587,7 @@ async def get_retention_data_prev_day():
                 preparedData[affilate]['Total_NET'] -= row['Ticket_Amount_USD']
                 preparedData[affilate]['count_of_withdrawal'] += 1
 
-        print(type(Trader_Ftd_Date))
-        print(Trader_Ftd_Date)
+
         if (Trader_Ftd_Date < previous_day_date):
             preparedData[affilate]['FTDs'] += row['Ticket_Is_ftd']
 
@@ -616,7 +605,6 @@ async def get_retention_data_prev_day():
             'count_of_records'] if isRecords else 0
         result[affilate]['UnAssigned_Tickets'] = affilateData['unassigned'] / affilateData[
             'count_of_records'] if isRecords else 0
-    # print(result)
 
     return result
 
@@ -628,7 +616,6 @@ async def getTotalAffilatesDataCompare(props):
     )
 
     result = {}
-    # print(paymentAnswers[0][0])
     for date in conv:
         startCohort, endCohort = get_cohort_dates(date)
         result[date] = []
@@ -669,7 +656,6 @@ async def getTotalAffilatesDataCompare(props):
 
         result[date].sort(key=lambda x: x['Affiliate'], reverse=True)
 
-    print(result)
     return json.dumps(result)
 
 async def get_total_affiliates_data():
@@ -711,9 +697,8 @@ async def get_total_affiliates_data():
         })
 
     result.sort(key=lambda x: x['FTDs'], reverse=True)
-    #print(json.dumps(result))
     nd = time.time()
-    print("total time", nd - st)
+
     return json.dumps(result)
 
 async def get_total_affiliates_data_prev_day():
@@ -755,13 +740,11 @@ async def get_total_affiliates_data_prev_day():
         })
 
     result.sort(key=lambda x: x['FTDs'], reverse=True)
-    #print(json.dumps(result))
     nd = time.time()
-    print("total time", nd - st)
+
     return json.dumps(result)
 
-# print(asyncio.run(get_total_affiliates_data()))
-async def get_total_builder_data(page, page_size):
+async def get_total_builder_data(props):
     st = time.time()
     ret, conv = await asyncio.gather(
         get_retention_data_builder(),
@@ -793,7 +776,8 @@ async def get_total_builder_data(page, page_size):
         })
 
     result.sort(key=lambda x: x['FTDs'], reverse=True)
-
+    page_size = int(props['pageSize'])
+    page = int(props['pageIndex'])
     # Pagination logic
     total_items = len(result)
     total_pages = math.ceil(total_items / page_size)
@@ -810,20 +794,20 @@ async def get_total_builder_data(page, page_size):
     response_payload = {
         'data': paginated_data,
         'pagination': {
-            'page': page,
-            'page_size': page_size,
+            'pageIndex': page,
+            'pageSize': page_size,
             'total_items': total_items,
             'total_pages': total_pages
         }
     }
 
     nd = time.time()
-    print("total time", nd - st)
+
     return response_payload
 
-async def get_total_builder_data_props():
+async def get_total_builder_data_props(props):
     st = time.time()
-    ret, conv, payment_answers = await asyncio.gather(
+    ret, conv = await asyncio.gather(
         get_retention_data_builder(),
         get_conversion_data_builder(),
         #execute_data_from_payment_prev_day()
@@ -860,9 +844,7 @@ async def get_total_builder_data_props():
         })
 
     result.sort(key=lambda x: x['FTDs'], reverse=True)
-    #print(json.dumps(result))
     nd = time.time()
-    print("total time", nd - st)
+
     return json.dumps(result)
-# print(asyncio.run(getTotalAffilatesDataCompare(props)))
 
