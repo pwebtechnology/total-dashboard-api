@@ -111,8 +111,6 @@ async def get_builder_data_total():
                                                'OPTIONS'])  # params = created_from , created_to , ftd_from , ftd_to , registered_from , registered_to , group_by[]
 async def get_builder_data_props():
     props = {
-        'startDate': request.args.get('startDate'),
-        'endDate': request.args.get('endDate'),
         'pageIndex': request.args.get('pageIndex'),
         'pageSize': request.args.get('pageSize')
     }
