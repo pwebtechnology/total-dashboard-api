@@ -355,7 +355,12 @@ async def get_conversion_data_builder(props):
         for trader, traderData in preparedData.items()
     }
 
-    return result, total_count
+    records = {
+        'result': result,
+        'total_count': total_count
+    }
+
+    return records
 
 
 
@@ -457,8 +462,12 @@ async def get_retention_data_builder(props):
             'count_of_records'] if isRecords else 0
         result[trader_id]['UnAssigned_Tickets'] = traderData['unassigned'] / traderData[
             'count_of_records'] if isRecords else 0
-
-    return result, total_count
+    records = {
+        'result' : result,
+        'total_count' : total_count
+    }
+    
+    return records
 
 
 async def get_conversion_data_prev_day():
@@ -746,7 +755,7 @@ async def get_total_affiliates_data_prev_day():
 
 async def get_total_builder_data(props):
     st = time.time()
-    ret,ret_count, conv, conv_count = await asyncio.gather(
+    ret, conv = await asyncio.gather(
         get_retention_data_builder(props),
         get_conversion_data_builder(props),
     )
