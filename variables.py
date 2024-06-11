@@ -54,7 +54,7 @@ def queryConvCompareBuilder(props):
 
     page_number = int(props['pageIndex'])
     page_size = int(props['pageSize'])
-    skip_count = (page_number - 1) * page_size
+    skip_count = page_number * page_size
     return [
         {"$match": {
             "Trader_Sale_Status": {"$ne": "Test"},
@@ -105,7 +105,7 @@ def queryRetCompare(props):
 def queryRetCompareBuilder(props):
     page_number = int(props['pageIndex'])
     page_size = int(props['pageSize'])
-    skip_count = (page_number - 1) * page_size
+    skip_count = page_number * page_size
     return [
         {"$match": {
             "Ticket_Method": {"$ne": "Qiwi"},
