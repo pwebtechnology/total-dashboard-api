@@ -59,7 +59,7 @@ def queryConvCompareBuilder(props):
         {"$match": {
             "Trader_Sale_Status": {"$ne": "Test"},
         }},
-        #{"$skip": skip_count},
+        {"$skip": skip_count},
         {"$limit": page_size}
     ]
 
@@ -113,7 +113,7 @@ def queryRetCompareBuilder(props):
             "Desk_Desk_Name": {"$ne": "Test"},
         }
         },
-        #{"$skip": skip_count},
+        {"$skip": skip_count},
         {"$limit": page_size}
     ]
 
