@@ -746,11 +746,11 @@ async def get_total_affiliates_data_prev_day():
 
 async def get_total_builder_data(props):
     st = time.time()
-    ret, conv = await asyncio.gather(
+    ret,ret_count, conv, conv_count = await asyncio.gather(
         get_retention_data_builder(props),
         get_conversion_data_builder(props),
     )
-    total_count = ret['total_count'] + conv['total_count']
+    total_count = ret_count + conv_count
     result = []
     for trader_id, data in conv.items():
         ret_trader = ret.get(trader_id, None)
