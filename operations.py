@@ -759,7 +759,7 @@ async def get_total_builder_data(props):
         PV = ret_trader['PV'] if ret_trader else 0
         STDs = ret_trader['STDs'] if ret_trader else 0
         STD_Rate = ret_trader['STD_Rate'] if ret_trader else 0
-        WD_Rate = ret_trader['WD_Rate'] resultif ret_trader else 0
+        WD_Rate = ret_trader['WD_Rate']  if ret_trader else 0
         UnAssigned_Tickets = ret_trader['UnAssigned_Tickets'] if ret_trader else 0
         FTDs = data.get('FTDs')
 
