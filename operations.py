@@ -458,7 +458,7 @@ async def get_retention_data_builder(props):
         result[trader_id]['UnAssigned_Tickets'] = traderData['unassigned'] / traderData[
             'count_of_records'] if isRecords else 0
 
-    return result
+    return result, total_count
 
 
 async def get_conversion_data_prev_day():
