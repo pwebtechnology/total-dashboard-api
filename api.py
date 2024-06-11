@@ -25,6 +25,17 @@ async def execute_data_from_crm(database, collections, query):
 
     finally:
         mongo_client.close()
+async def execute_data_from_crm_builder(database, collections, query):
+    mongo_client = MongoClient(mongo_uri, server_api=ServerApi('1'))
+    try:
+        db = mongo_client.get_database(database)
+        results = await fetch_promises(db, collections, query)
+        total_records = sum(db[collection].count_documents({}) for collection in collections)
+        flattened_results = [item for sublist in results for item in sublist]
+        return flattened_results, total_records
+    finally:
+        mongo_client.close()
+
 
 async def execute_data_from_payment(props=None):
     database = payment_parametrs['database']
@@ -41,9 +52,9 @@ async def execute_data_from_payment_builder(props=None):
     query = payment_parametrs_builder['query']
     queryAll = payment_parametrs_builder['queryAll']
     current_query = query(props) if props else queryAll
-    result = await execute_data_from_crm(database, payment_collection, current_query)
+    result, total_count = await execute_data_from_crm_builder(database, payment_collection, current_query)
 
-    return result
+    return result, total_count
 
 async def execute_data_from_payment_prev_day(props=None):
     database = payment_parametrs['database']
@@ -73,9 +84,9 @@ async def execute_data_from_conversion_crm_builder(props):
     query = conv_parameters_builder['query']
     queryAll = conv_parameters_builder['queryAll']
     current_query = query(props) if props else queryAll
-    result = await execute_data_from_crm(database, conv_collections, current_query)
+    result, total_count = await execute_data_from_crm_builder(database, conv_collections, current_query)
 
-    return result
+    return result, total_count
 
 
 async def execute_data_from_retention_crm(props=None):
@@ -99,6 +110,5 @@ async def execute_data_from_retention_crm_builder(props):
     query = ret_parameters_builder['query']
     queryAll = ret_parameters_builder['queryAll']
     current_query = query(props) if props else queryAll
-    result = await execute_data_from_crm(database, ret_collections, current_query)
-
-    return result
+    result, total_count = await execute_data_from_crm_builder(database, ret_collections, current_query)
+    return result, total_count
