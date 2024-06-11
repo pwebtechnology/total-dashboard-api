@@ -550,7 +550,7 @@ async def get_conversion_data_prev_day():
             'NA Counters': na_counters,
         }
 
-    return result, total_count
+    return result
 
 async def get_retention_data_prev_day():
     result = {}
@@ -759,10 +759,10 @@ async def get_total_builder_data(props):
         get_retention_data_builder(props),
         get_conversion_data_builder(props),
     )
-    total_count = ret_count + conv_count
+    total_count = ret['total_count'] + conv['total_count']
     result = []
-    for trader_id, data in conv.items():
-        ret_trader = ret.get(trader_id, None)
+    for trader_id, data in conv['result'].items():
+        ret_trader = ret['result'].get(trader_id, None)
         Net = ret_trader['Total_NET'] if ret_trader else 0
         WD = ret_trader['Total_WD'] if ret_trader else 0
         PV = ret_trader['PV'] if ret_trader else 0
