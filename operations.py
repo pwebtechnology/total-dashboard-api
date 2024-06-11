@@ -318,7 +318,7 @@ async def get_conversion_data():
 
 async def get_conversion_data_builder(props):
     st = time.time()
-    data = await execute_data_from_conversion_crm_builder(props)
+    data, total_count = await execute_data_from_conversion_crm_builder(props)
 
     preparedData = defaultdict(lambda: {'FTDs': 0, 'Leads': 0, 'na_counters': 0, 'unassigned': 0, 'pool': 0, 'assigned': 0, 'total_calls': 0, 'login': 0, 'not_login': 0})
 
@@ -355,7 +355,7 @@ async def get_conversion_data_builder(props):
         for trader, traderData in preparedData.items()
     }
 
-    return result
+    return result, total_count
 
 
 
@@ -414,7 +414,7 @@ async def get_retention_data():
 async def get_retention_data_builder(props):
     st = time.time()
     result = {}
-    data = await execute_data_from_retention_crm_builder(props)
+    data, total_count = await execute_data_from_retention_crm_builder(props)
     preparedData = {}
     
     for row in data:
@@ -541,7 +541,7 @@ async def get_conversion_data_prev_day():
             'NA Counters': na_counters,
         }
 
-    return result
+    return result, total_count
 
 async def get_retention_data_prev_day():
     result = {}
@@ -750,7 +750,7 @@ async def get_total_builder_data(props):
         get_retention_data_builder(props),
         get_conversion_data_builder(props),
     )
-
+    total_count = ret['total_count'] + conv['total_count']
     result = []
     for trader_id, data in conv.items():
         ret_trader = ret.get(trader_id, None)
@@ -759,7 +759,7 @@ async def get_total_builder_data(props):
         PV = ret_trader['PV'] if ret_trader else 0
         STDs = ret_trader['STDs'] if ret_trader else 0
         STD_Rate = ret_trader['STD_Rate'] if ret_trader else 0
-        WD_Rate = ret_trader['WD_Rate'] if ret_trader else 0
+        WD_Rate = ret_trader['WD_Rate'] resultif ret_trader else 0
         UnAssigned_Tickets = ret_trader['UnAssigned_Tickets'] if ret_trader else 0
         FTDs = data.get('FTDs')
 
@@ -792,11 +792,11 @@ async def get_total_builder_data(props):
     paginated_data = result[start_index:end_index]
 
     response_payload = {
-        'data': paginated_data,
+        'records': paginated_data,
         'pagination': {
             'pageIndex': page,
             'pageSize': page_size,
-            'total_items': total_items,
+            'total_items': total_count,
             'total_pages': total_pages
         }
     }
