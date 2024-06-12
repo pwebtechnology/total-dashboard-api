@@ -334,9 +334,9 @@ async def get_conversion_data_builder(props):
         Trader_Sale_Status = row['Trader_Sale_Status']
         Trader_Last_Login = row['Trader_Last_Login'].strftime("%Y-%m-%d %H:%M:%S")
 
-        preparedData[key]['#Leads'] += 1
+        preparedData[key]['Leads'] += 1
         preparedData[key]['total_calls'] += 1 if 'Trader_Phone' in row else 0
-        preparedData[key]['#FTDs'] += Trader_Is_Ftd
+        preparedData[key]['FTDs'] += Trader_Is_Ftd
         preparedData[key]['unassigned'] += 1 if check_unassigned(Trader_First_assigned_broker) else 0
         preparedData[key]['pool'] += 1 if check_unassigned(Brocker) else 0
         preparedData[key]['na_counters'] += Trader_Sale_Status in ['No answer 5 UP', 'No answer 1-5']
@@ -346,16 +346,16 @@ async def get_conversion_data_builder(props):
 
     result = {
         trader: {
-            '#FTDs': traderData['#FTDs'],
-            '#Leads': traderData['#Leads'],
-            'Calls per FTD': round(traderData['total_calls'] / traderData['#FTDs']) if traderData['#FTDs'] else 0,
-            'CR%': get_percent(traderData['#FTDs'] / traderData['#Leads']) if traderData['#Leads'] else 0,
-            'NA%': get_percent(traderData['na_counters'] / traderData['#Leads']) if traderData['#Leads'] else 0,
-            'CallAgain%': get_percent(traderData['call_again_counters'] / traderData['#Leads']) if traderData['#Leads'] else 0,
-            'CallBack%': get_percent(traderData['call_back_counters'] / traderData['#Leads']) if traderData['#Leads'] else 0,
-            'AnRate': get_percent(1 - (traderData['na_counters'] / traderData['#Leads'])) if traderData['#Leads'] else 0,
-            'UnAssigned Leads': get_percent(traderData['unassigned'] / traderData['#Leads']) if traderData['#Leads'] else 0,
-            'Pool Customers VS Assigned': get_percent(traderData['pool'] / (traderData['Leads'] - traderData['pool'])) if (traderData['#Leads'] - traderData['pool']) else 0,
+            '#FTDs': traderData['FTDs'],
+            '#Leads': traderData['Leads'],
+            'Calls per FTD': round(traderData['total_calls'] / traderData['FTDs']) if traderData['FTDs'] else 0,
+            'CR%': get_percent(traderData['FTDs'] / traderData['Leads']) if traderData['Leads'] else 0,
+            'NA%': get_percent(traderData['na_counters'] / traderData['Leads']) if traderData['Leads'] else 0,
+            'CallAgain%': get_percent(traderData['call_again_counters'] / traderData['Leads']) if traderData['Leads'] else 0,
+            'CallBack%': get_percent(traderData['call_back_counters'] / traderData['Leads']) if traderData['Leads'] else 0,
+            'AnRate': get_percent(1 - (traderData['na_counters'] / traderData['Leads'])) if traderData['Leads'] else 0,
+            'UnAssigned Leads': get_percent(traderData['unassigned'] / traderData['Leads']) if traderData['Leads'] else 0,
+            'Pool Customers VS Assigned': get_percent(traderData['pool'] / (traderData['Leads'] - traderData['pool'])) if (traderData['Leads'] - traderData['pool']) else 0,
             'Autologin%': get_percent(traderData['login'] / traderData['#Leads']) if traderData['Leads'] else 0,
             'Login': traderData['login'],
             'NA Counters': traderData['na_counters']
