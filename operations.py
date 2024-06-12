@@ -330,9 +330,9 @@ async def get_conversion_data_builder(props):
         #trader_id = row['Trader_ID']
         Trader_Is_Ftd = row['Trader_Is_Ftd']
         Trader_First_assigned_broker = row['Trader_First_assigned_broker']
-        Brocker = row['Brocker_Conv']
-        Trader_Sale_Status = row['Sale_status']
-        Trader_Last_Login = row['Last_login'].strftime("%Y-%m-%d %H:%M:%S")
+        Brocker = row['Brocker']
+        Trader_Sale_Status = row['Trader_Sale_Status']
+        Trader_Last_Login = row['Trader_Last_Login'].strftime("%Y-%m-%d %H:%M:%S")
 
         preparedData[key]['#Leads'] += 1
         preparedData[key]['total_calls'] += 1 if 'Trader_Phone' in row else 0
