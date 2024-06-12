@@ -789,7 +789,7 @@ async def get_total_builder_data(props):
         STD_Rate = ret_trader['STD_Rate'] if ret_trader else 0
         WD_Rate = ret_trader['WD_Rate']  if ret_trader else 0
         UnAssigned_Tickets = ret_trader['UnAssigned_Tickets'] if ret_trader else 0
-        FTDs = data.get('FTDs')
+        FTDs = data.get('#FTDs')
 
         result.append({
             'Trader': trader_id,
@@ -803,7 +803,7 @@ async def get_total_builder_data(props):
             'UnAssigned Tickets': get_percent(UnAssigned_Tickets),
         })
 
-    result.sort(key=lambda x: x['FTDs'], reverse=True)
+    result.sort(key=lambda x: x['#FTDs'], reverse=True)
     page_size = int(props['pageSize'])
     page = int(props['pageIndex'])
     # Pagination logic
