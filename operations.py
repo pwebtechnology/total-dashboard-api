@@ -356,7 +356,7 @@ async def get_conversion_data_builder(props):
             'AnRate': get_percent(1 - (traderData['na_counters'] / traderData['Leads'])) if traderData['Leads'] else 0,
             'UnAssigned Leads': get_percent(traderData['unassigned'] / traderData['Leads']) if traderData['Leads'] else 0,
             'Pool Customers VS Assigned': get_percent(traderData['pool'] / (traderData['Leads'] - traderData['pool'])) if (traderData['Leads'] - traderData['pool']) else 0,
-            'Autologin%': get_percent(traderData['login'] / traderData['#Leads']) if traderData['Leads'] else 0,
+            'Autologin%': get_percent(traderData['login'] / traderData['Leads']) if traderData['Leads'] else 0,
             'Login': traderData['login'],
             'NA Counters': traderData['na_counters']
         }
