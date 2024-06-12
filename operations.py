@@ -319,7 +319,10 @@ async def get_conversion_data():
 async def get_conversion_data_builder(props):
     st = time.time()
     data, total_count = await execute_data_from_conversion_crm_builder(props)
-    dimentions = props['dimentions']
+    if props['dimentions'] is not None:
+        dimentions = props['dimentions']
+    else:
+        dimentions = 'Customer_ID'
     preparedData = defaultdict(lambda: {'FTDs': 0, 'Leads': 0, 'na_counters': 0, 'unassigned': 0, 'pool': 0, 'assigned': 0, 'total_calls': 0, 'login': 0, 'not_login': 0})
 
     for row in data:
@@ -327,9 +330,9 @@ async def get_conversion_data_builder(props):
         #trader_id = row['Trader_ID']
         Trader_Is_Ftd = row['Trader_Is_Ftd']
         Trader_First_assigned_broker = row['Trader_First_assigned_broker']
-        Brocker = row['Brocker']
-        Trader_Sale_Status = row['Trader_Sale_Status']
-        Trader_Last_Login = row['Trader_Last_Login'].strftime("%Y-%m-%d %H:%M:%S")
+        Brocker = row['Brocker_Conv']
+        Trader_Sale_Status = row['Sale_status']
+        Trader_Last_Login = row['Last_login'].strftime("%Y-%m-%d %H:%M:%S")
 
         preparedData[key]['#Leads'] += 1
         preparedData[key]['total_calls'] += 1 if 'Trader_Phone' in row else 0
@@ -426,7 +429,9 @@ async def get_retention_data_builder(props):
     result = {}
     data, total_count = await execute_data_from_retention_crm_builder(props)
     preparedData = {}
-    dimentions = props['dimentions']
+    if props['dimentions'] is not None:
+        dimentions = props['dimentions']
+    else : dimentions = 'Customer_ID'
     for row in data:
         key = tuple(row[dim] for dim in dimentions)
 
@@ -443,7 +448,8 @@ async def get_retention_data_builder(props):
                 'PV': 0,
                 'STD_rate%': 0,
                 'InTRV$': 0,
-                'count_of_records': 0
+                'count_of_records': 0,
+                'count_of_withdrawal': 0
             }
         preparedData[key]['count_of_records'] += 1
         preparedData[key]['#FTDs'] += row['Ticket_Is_ftd']
