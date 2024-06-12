@@ -112,7 +112,9 @@ async def get_builder_data_total():
 async def get_builder_data_props():
     props = {
         'pageIndex': request.args.get('pageIndex'),
-        'pageSize': request.args.get('pageSize')
+        'pageSize': request.args.get('pageSize'),
+        'metrics' : request.args.getlist('metrics[]'),
+        'dimentions' : request.args.getlist('dimentions[]')
     }
     #metrix = str()
     data = await get_total_builder_data(props)

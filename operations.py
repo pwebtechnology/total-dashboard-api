@@ -319,36 +319,41 @@ async def get_conversion_data():
 async def get_conversion_data_builder(props):
     st = time.time()
     data, total_count = await execute_data_from_conversion_crm_builder(props)
-
+    dimentions = props['dimentions']
     preparedData = defaultdict(lambda: {'FTDs': 0, 'Leads': 0, 'na_counters': 0, 'unassigned': 0, 'pool': 0, 'assigned': 0, 'total_calls': 0, 'login': 0, 'not_login': 0})
 
     for row in data:
-        trader_id = row['Trader_ID']
+        key = tuple(row[dim] for dim in dimentions)
+        #trader_id = row['Trader_ID']
         Trader_Is_Ftd = row['Trader_Is_Ftd']
         Trader_First_assigned_broker = row['Trader_First_assigned_broker']
         Brocker = row['Brocker']
         Trader_Sale_Status = row['Trader_Sale_Status']
         Trader_Last_Login = row['Trader_Last_Login'].strftime("%Y-%m-%d %H:%M:%S")
 
-        preparedData[trader_id]['Leads'] += 1
-        preparedData[trader_id]['total_calls'] += 1 if 'Trader_Phone' in row else 0
-        preparedData[trader_id]['FTDs'] += Trader_Is_Ftd
-        preparedData[trader_id]['unassigned'] += 1 if check_unassigned(Trader_First_assigned_broker) else 0
-        preparedData[trader_id]['pool'] += 1 if check_unassigned(Brocker) else 0
-        preparedData[trader_id]['na_counters'] += Trader_Sale_Status in ['No answer 5 UP', 'No answer 1-5']
-        preparedData[trader_id]['login'] += 1 if Trader_Last_Login != empty_date else 0
+        preparedData[key]['#Leads'] += 1
+        preparedData[key]['total_calls'] += 1 if 'Trader_Phone' in row else 0
+        preparedData[key]['#FTDs'] += Trader_Is_Ftd
+        preparedData[key]['unassigned'] += 1 if check_unassigned(Trader_First_assigned_broker) else 0
+        preparedData[key]['pool'] += 1 if check_unassigned(Brocker) else 0
+        preparedData[key]['na_counters'] += Trader_Sale_Status in ['No answer 5 UP', 'No answer 1-5']
+        preparedData[key]['call_again_counters'] += Trader_Sale_Status in ['Call Again']
+        preparedData[key]['call_back_counters'] += Trader_Sale_Status in ['Call Back']
+        preparedData[key]['login'] += 1 if Trader_Last_Login != empty_date else 0
 
     result = {
         trader: {
-            'FTDs': traderData['FTDs'],
-            'Leads': traderData['Leads'],
-            'Calls per FTD': round(traderData['total_calls'] / traderData['FTDs']) if traderData['FTDs'] else 0,
-            'CR': get_percent(traderData['FTDs'] / traderData['Leads']) if traderData['Leads'] else 0,
-            'NA': get_percent(traderData['na_counters'] / traderData['Leads']) if traderData['Leads'] else 0,
-            'AnRate': get_percent(1 - (traderData['na_counters'] / traderData['Leads'])) if traderData['Leads'] else 0,
-            'UnAssigned Leads': get_percent(traderData['unassigned'] / traderData['Leads']) if traderData['Leads'] else 0,
-            'Pool Customers VS Assigned': get_percent(traderData['pool'] / (traderData['Leads'] - traderData['pool'])) if (traderData['Leads'] - traderData['pool']) else 0,
-            'Autologin': get_percent(traderData['login'] / traderData['Leads']) if traderData['Leads'] else 0,
+            '#FTDs': traderData['#FTDs'],
+            '#Leads': traderData['#Leads'],
+            'Calls per FTD': round(traderData['total_calls'] / traderData['#FTDs']) if traderData['#FTDs'] else 0,
+            'CR%': get_percent(traderData['#FTDs'] / traderData['#Leads']) if traderData['#Leads'] else 0,
+            'NA%': get_percent(traderData['na_counters'] / traderData['#Leads']) if traderData['#Leads'] else 0,
+            'CallAgain%': get_percent(traderData['call_again_counters'] / traderData['#Leads']) if traderData['#Leads'] else 0,
+            'CallBack%': get_percent(traderData['call_back_counters'] / traderData['#Leads']) if traderData['#Leads'] else 0,
+            'AnRate': get_percent(1 - (traderData['na_counters'] / traderData['#Leads'])) if traderData['#Leads'] else 0,
+            'UnAssigned Leads': get_percent(traderData['unassigned'] / traderData['#Leads']) if traderData['#Leads'] else 0,
+            'Pool Customers VS Assigned': get_percent(traderData['pool'] / (traderData['Leads'] - traderData['pool'])) if (traderData['#Leads'] - traderData['pool']) else 0,
+            'Autologin%': get_percent(traderData['login'] / traderData['#Leads']) if traderData['Leads'] else 0,
             'Login': traderData['login'],
             'NA Counters': traderData['na_counters']
         }
@@ -421,46 +426,53 @@ async def get_retention_data_builder(props):
     result = {}
     data, total_count = await execute_data_from_retention_crm_builder(props)
     preparedData = {}
-    
+    dimentions = props['dimentions']
     for row in data:
-        trader_id = row['Trader_ID']
+        key = tuple(row[dim] for dim in dimentions)
 
-        if trader_id not in preparedData:
-            preparedData[trader_id] = {
-                'FTDs': 0,
-                'STDs': 0,
-                'Total_WD': 0,
-                'Total_NET': 0,
-                'count_of_withdrawal': 0,
-                'count_of_records': 0,
-                'unassigned': 0,
+        if key not in preparedData:
+            preparedData[key] = {
+                '#STDs': 0,
+                '#FTDs': 0,
+                '$STDs': 0,
+                '#RDP': 0,
+                '$RDP': 0,
+                '$Total_deposit': 0,
+                '$WD': 0,
+                '$Net': 0,
+                'PV': 0,
+                'STD_rate%': 0,
+                'InTRV$': 0
             }
-        preparedData[trader_id]['count_of_records'] += 1
-        preparedData[trader_id]['FTDs'] += row['Ticket_Is_ftd']
-        preparedData[trader_id]['STDs'] += row['STD'] if row['STD'] != "-" else 0
-        preparedData[trader_id]['unassigned'] += 1 if check_unassigned(row['Ticket_Trader_First_Assigned_Broker']) else 0
+        preparedData[key]['count_of_records'] += 1
+        preparedData[key]['#FTDs'] += row['Ticket_Is_ftd']
+        preparedData[key]['#STDs'] += row['STD'] if row['STD'] != "-" else 0
+        preparedData[key]['$STDs'] += row['Ticket_Amount_USD'] if row['STD'] != "-" else 0
 
         if row['Ticket_Type'] == "Deposit" and row['Ticket_Is_ftd'] != 1:
-            preparedData[trader_id]['Total_NET'] += row['Ticket_Amount_USD']
+            preparedData[key]['$Net'] += row['Ticket_Amount_USD']
+            preparedData[key]['$Total_deposit'] += row['Ticket_Amount_USD']
+            preparedData[key]['#RDP'] += 1
+            preparedData[key]['#RDP'] += row['Ticket_Amount_USD']
 
         if row['Ticket_Type'] == "Withdrawal":
-            preparedData[trader_id]['Total_WD'] += row['Ticket_Amount_USD']
-            preparedData[trader_id]['Total_NET'] -= row['Ticket_Amount_USD']
-            preparedData[trader_id]['count_of_withdrawal'] += 1
+            preparedData[key]['$WD'] += row['Ticket_Amount_USD']
+            preparedData[key]['$Net'] -= row['Ticket_Amount_USD']
+            preparedData[key]['count_of_withdrawal'] += 1
 
-    for trader_id, traderData in preparedData.items():
-        result[trader_id] = {}
-        isFtds = bool(traderData['FTDs'])
+    for key, traderData in preparedData.items():
+        result_key = '_'.join(map(str, key))
+        result[result_key] = {}
+        isFtds = bool(traderData['#FTDs'])
         isRecords = bool(traderData['count_of_records'])
-        result[trader_id]['unassigned'] = traderData['unassigned']
-        result[trader_id]['Total_WD'] = traderData['Total_WD']
-        result[trader_id]['Total_NET'] = traderData['Total_NET']
-        result[trader_id]['STDs'] = traderData['STDs']
-        result[trader_id]['PV'] = traderData['Total_NET'] / traderData['FTDs'] if isFtds else 0
-        result[trader_id]['STD_Rate'] = traderData['STDs'] / traderData['FTDs'] if isFtds else 0
-        result[trader_id]['WD_Rate'] = traderData['count_of_withdrawal'] / traderData[
-            'count_of_records'] if isRecords else 0
-        result[trader_id]['UnAssigned_Tickets'] = traderData['unassigned'] / traderData[
+        result[result_key]['$Total_deposit'] = traderData['$Total_deposit']
+        result[result_key]['$WD'] = traderData['$WD']
+        result[result_key]['$Net'] = traderData['$Net']
+        result[result_key]['#STDs'] = traderData['#STDs']
+        result[result_key]['$STDs'] = traderData['$STDs']
+        result[result_key]['PV'] = traderData['$Net'] / traderData['#FTDs'] if isFtds else 0
+        result[result_key]['STD_rate%'] = traderData['#STDs'] / traderData['#FTDs'] if isFtds else 0
+        result[result_key]['WD_Rate'] = traderData['count_of_withdrawal'] / traderData[
             'count_of_records'] if isRecords else 0
     records = {
         'result' : result,
