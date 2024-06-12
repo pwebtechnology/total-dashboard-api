@@ -442,7 +442,8 @@ async def get_retention_data_builder(props):
                 '$Net': 0,
                 'PV': 0,
                 'STD_rate%': 0,
-                'InTRV$': 0
+                'InTRV$': 0,
+                'count_of_records': 0
             }
         preparedData[key]['count_of_records'] += 1
         preparedData[key]['#FTDs'] += row['Ticket_Is_ftd']
