@@ -85,6 +85,20 @@ async def execute_data_from_conversion_crm_builder(props):
     queryAll = conv_parameters_builder['queryAll']
     current_query = query(props) if props else queryAll
     result, total_count = await execute_data_from_crm_builder(database, conv_collections, current_query)
+    key_renames = {
+        'Trader_Source': 'Source',
+        'Trader_Registered_At': 'Registered_At',
+        'Trader_Sale_Status': 'Sale_status',
+        'Trader_ID': 'Customer_ID',
+        'Campaign_Campaign_Name': 'Campaign',
+        'Desk_Desk_Name': 'Desk_Conversion',
+        'Trader_Country': 'Country',
+        'Brocker': 'Main_stage',
+        'Trader_First_assigned_broker': 'Broker_Conv',
+        'Brand': 'Brand_Conv',
+        'Trader_Ftd_Date': 'FTD_Date',
+        'Trader_Last_Login': 'Last_login'
+    }
 
     return result, total_count
 
@@ -111,4 +125,23 @@ async def execute_data_from_retention_crm_builder(props):
     queryAll = ret_parameters_builder['queryAll']
     current_query = query(props) if props else queryAll
     result, total_count = await execute_data_from_crm_builder(database, ret_collections, current_query)
-    return result, total_count
+    key_renames = {
+        'Ticket_Trader_First_Assigned_Broker': 'Broker_Ret',
+        'Campaign_Name': 'Campaign',
+        'Ticket_Method': 'Method',
+        'Trader_Country': 'Country',
+        'Trader_ID': 'Customer_ID',
+        'Broker': 'Main_stage',
+        'is_no_ftd': 'Is_no_ftd',
+        'Trader_Source': 'Source',
+        'Brand': 'Brand_Ret',
+        'Trader_Ftd_Date': 'FTD_Date',
+        'Desk_Desk_Name': 'Desk_Retention',
+        'is_removed': 'Is_removed'     
+        
+    }
+    renamed_result = []
+    for item in result:
+        renamed_item = {key_renames.get(k,k): v for k, v in item.items()}
+        renamed_result.append(renamed_item)
+    return renamed_result, total_count
