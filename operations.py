@@ -322,7 +322,7 @@ async def get_conversion_data_builder(props):
     if props['dimentions'] is not None:
         dimentions = props['dimentions']
     else:
-        dimentions = 'Customer_ID'
+        dimentions = 'Trader_ID'
     preparedData = defaultdict(lambda: {'FTDs': 0, 'Leads': 0, 'na_counters': 0, 'unassigned': 0, 'pool': 0, 'assigned': 0, 'total_calls': 0, 'login': 0, 'not_login': 0, 'call_again_counters': 0, 'call_back_counters': 0})
 
     for row in data:
@@ -431,7 +431,7 @@ async def get_retention_data_builder(props):
     preparedData = {}
     if props['dimentions'] is not None:
         dimentions = props['dimentions']
-    else : dimentions = 'Customer_ID'
+    else : dimentions = 'Trader_ID'
     for row in data:
         key = tuple(row[dim] for dim in dimentions)
 
