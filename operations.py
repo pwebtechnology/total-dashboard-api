@@ -836,8 +836,8 @@ async def get_total_builder_data(props):
 async def get_total_builder_data_props(props):
     st = time.time()
     ret, conv = await asyncio.gather(
-        get_retention_data_builder(),
-        get_conversion_data_builder(),
+        get_retention_data_builder(props),
+        get_conversion_data_builder(props)
         #execute_data_from_payment_prev_day()
     )
 
