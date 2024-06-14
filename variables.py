@@ -20,7 +20,35 @@ affilateException = {
     'MGA': ['MGAautsp'],
     'Scale': ['ScaleCA', 'ScaleAUtsp'],
 }
+conv_key_renames = {
+    'Trader_Source': 'Source',
+    'Trader_Registered_At': 'Registered_At',
+    'Trader_Sale_Status': 'Sale_status',
+    'Trader_ID': 'Customer_ID',
+    'Campaign_Campaign_Name': 'Campaign',
+    'Desk_Desk_Name': 'Desk_Conversion',
+    'Trader_Country': 'Country',
+    'Brocker': 'Main_stage',
+    'Trader_First_assigned_broker': 'Broker_Conv',
+    'Brand': 'Brand_Conv',
+    'Trader_Ftd_Date': 'FTD_Date',
+    'Trader_Last_Login': 'Last_login'
+}
 
+ret_key_renames = {
+    'Ticket_Trader_First_Assigned_Broker': 'Broker_Ret',
+    'Campaign_Name': 'Campaign',
+    'Ticket_Method': 'Method',
+    'Trader_Country': 'Country',
+    'Trader_ID': 'Customer_ID',
+    'Broker': 'Main_stage',
+    'is_no_ftd': 'Is_no_ftd',
+    'Trader_Source': 'Source',
+    'Brand': 'Brand_Ret',
+    'Trader_Ftd_Date': 'FTD_Date',
+    'Desk_Desk_Name': 'Desk_Retention',
+    'is_removed': 'Is_removed'
+}
 
 def queryConvCompare(props):
     affiliates = props['affiliates']

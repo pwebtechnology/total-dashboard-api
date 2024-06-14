@@ -110,11 +110,16 @@ async def get_builder_data_total():
 @app.route('/get_builder_data_props', methods=['GET',
                                                'OPTIONS'])  # params = created_from , created_to , ftd_from , ftd_to , registered_from , registered_to , group_by[]
 async def get_builder_data_props():
+    pageIndex = int(request.args.get('pageIndex', 0))
+    pageSize = int(request.args.get('pageSize', 10))
+    dimentions = request.args.getlist('dimentions[]')
+    metrics = request.args.getlist('metrics[]')
+
     props = {
-        'pageIndex': request.args.get('pageIndex'),
-        'pageSize': request.args.get('pageSize'),
-        'metrics' : request.args.getlist('metrics[]'),
-        'dimentions' : request.args.getlist('dimentions[]')
+        'pageIndex': pageIndex,
+        'pageSize': pageSize,
+        'dimentions': dimentions,
+        'metrics': metrics
     }
     #metrix = str()
     data = await get_total_builder_data(props)
