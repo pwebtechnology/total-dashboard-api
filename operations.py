@@ -896,6 +896,6 @@ async def get_total_builder_data_props(props):
         ret_affiliate = ret_data['result'].get(trader_id, {})
         result.append({**data, **ret_affiliate})
 
-    result.sort(key=lambda x: x.get('#FTDs', 0), reverse=True)
+    #result.sort(key=lambda x: x.get('#FTDs', 0), reverse=True)
     return json.dumps({'result': result, 'total_count': max(ret_data['total_count'], conv_data['total_count'])})
 
