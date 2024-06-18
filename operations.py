@@ -885,17 +885,100 @@ async def get_total_builder_data(props):
 
     return response_payload
 
+
+async def get_conversion_data_builder_full(props):
+    return await execute_data_from_conversion_crm_builder(props)
+
+async def get_retention_data_builder_full(props):
+    return await execute_data_from_conversion_crm_builder(props)
 async def get_total_builder_data_props(props):
+    st = time.time()
     ret_data, conv_data = await asyncio.gather(
-        get_retention_data_builder(props),
-        get_conversion_data_builder(props)
+        get_retention_data_builder_full(props),
+        get_conversion_data_builder_full(props)
     )
 
-    result = []
-    for trader_id, data in conv_data['result'].items():
-        ret_affiliate = ret_data['result'].get(trader_id, {})
-        result.append({**data, **ret_affiliate})
+    dimensions = props.get('dimentions', ['Trader_ID'])
+    metrics = props.get('metrics', [])
+    prepared_data = defaultdict(lambda: {metric: 0 for metric in metrics})
 
-    #result.sort(key=lambda x: x.get('#FTDs', 0), reverse=True)
+    combined_data = ret_data['result'] + conv_data['result']
+
+    for row in combined_data:
+        key = tuple(row[dim] for dim in dimensions)
+        for metric in metrics:
+            if metric == '#Leads':
+                prepared_data[key][metric] += 1
+            elif metric == '#FTDs':
+                prepared_data[key][metric] += row.get('Trader_Is_Ftd', 0)
+            elif metric == '$FTDs':
+                prepared_data[key][metric] += row.get('Ticket_Amount_USD', 0) if row.get('Trader_Is_Ftd') else 0
+            elif metric == '#std':
+                prepared_data[key][metric] += row.get('STD', 0)
+            elif metric == '$std':
+                prepared_data[key][metric] += row.get('Ticket_Amount_USD', 0) if row.get('STD') else 0
+            elif metric == '#rdp':
+                if row.get('Ticket_Type') == "Deposit" and row.get('Trader_Is_Ftd') == 0:
+                    prepared_data[key][metric] += 1
+            elif metric == '$rdp':
+                if row.get('Ticket_Type') == "Deposit" and row.get('Trader_Is_Ftd') == 0:
+                    prepared_data[key][metric] += row.get('Ticket_Amount_USD', 0)
+            elif metric == '$Total_deposit':
+                if row.get('Ticket_Type') == "Deposit":
+                    prepared_data[key][metric] += row.get('Ticket_Amount_USD', 0)
+            elif metric == '$WD':
+                if row.get('Ticket_Type') == "Withdrawal":
+                    prepared_data[key][metric] += row.get('Ticket_Amount_USD', 0)
+            elif metric == '$Net':
+                if row.get('Ticket_Type') == "Deposit":
+                    prepared_data[key]['$Total_deposit'] += row.get('Ticket_Amount_USD', 0)
+                if row.get('Ticket_Type') == "Withdrawal":
+                    prepared_data[key]['$WD'] += row.get('Ticket_Amount_USD', 0)
+                prepared_data[key][metric] = prepared_data[key]['$Total_deposit'] - prepared_data[key]['$WD']
+            elif metric == 'PV':
+                if row.get('Ticket_Type') == "Deposit":
+                    prepared_data[key]['$Total_deposit'] += row.get('Ticket_Amount_USD', 0)
+                if row.get('Ticket_Type') == "Withdrawal":
+                    prepared_data[key]['$WD'] += row.get('Ticket_Amount_USD', 0)
+                prepared_data[key]['$Net'] = prepared_data[key]['$Total_deposit'] - prepared_data[key]['$WD']
+                prepared_data[key]['#FTDs'] = max(prepared_data[key]['#FTDs'], 1)
+                prepared_data[key][metric] = prepared_data[key]['$Net'] / prepared_data[key]['#FTDs']
+            elif metric == 'STD_rate%':
+                prepared_data[key]['#std'] = max(prepared_data[key]['#std'], 1)
+                prepared_data[key][metric] = get_percent(prepared_data[key]['#std'] / prepared_data[key]['#FTDs'])
+            elif metric == 'CR%':
+                prepared_data[key][metric] = get_percent(prepared_data[key]['#FTDs'] / prepared_data[key]['#Leads'])
+            elif metric == 'InCR%':
+                reg_month = row.get('Trader_Registered_At').month if row.get('Trader_Registered_At') else None
+                ftd_month = row.get('Trader_Ftd_Date').month if row.get('Trader_Ftd_Date') else None
+                if reg_month == ftd_month:
+                    prepared_data[key][metric] = get_percent(prepared_data[key]['#FTDs'] / prepared_data[key]['#Leads'])
+            elif metric == 'InTRV$':
+                created_month = row.get('Ticket_Created_At').month if row.get('Ticket_Created_At') else None
+                ftd_month = row.get('Trader_Ftd_Date').month if row.get('Trader_Ftd_Date') else None
+                if created_month == ftd_month:
+                    prepared_data[key][metric] = prepared_data[key]['$Net'] / prepared_data[key]['#FTD']
+            elif metric == 'NA%':
+                if row.get('Trader_Sale_Status') in ['No answer 5 UP', 'No answer 1-5']:
+                    prepared_data[key]['NA_Count'] += 1
+                prepared_data[key][metric] = get_percent(prepared_data[key]['NA_Count'] / prepared_data[key]['#Leads'])
+            elif metric == 'Autologin%':
+                if row.get('Trader_Last_Login'):
+                    prepared_data[key]['Autologin_Count'] += 1
+                prepared_data[key][metric] = get_percent(prepared_data[key]['Autologin_Count'] / prepared_data[key]['#Leads'])
+            elif metric == 'CallAgain%':
+                if row.get('Trader_Sale_Status') == 'Call Again':
+                    prepared_data[key]['CallAgain_Count'] += 1
+                prepared_data[key][metric] = get_percent(prepared_data[key]['CallAgain_Count'] / prepared_data[key]['#Leads'])
+            elif metric == 'CallBack%':
+                if row.get('Trader_Sale_Status') == 'Call Back':
+                    prepared_data[key]['CallBack_Count'] += 1
+                prepared_data[key][metric] = get_percent(prepared_data[key]['CallBack_Count'] / prepared_data[key]['#Leads'])
+
+    result = {
+        '_'.join(map(str, key)): {**trader_data, **{dim: key[i] for i, dim in enumerate(dimensions)}}
+        for key, trader_data in prepared_data.items()
+    }
+
     return json.dumps({'result': result, 'total_count': max(ret_data['total_count'], conv_data['total_count'])})
 
