@@ -898,11 +898,25 @@ async def get_total_builder_data_props(props):
         get_conversion_data_builder(props)
     )
 
-    dimensions = props.get('dimentions', ['Trader_ID'])
+    dimensions = props.get('dimensions', ['Trader_ID'])
     metrics = props.get('metrics', [])
     prepared_data = defaultdict(lambda: {metric: 0 for metric in metrics})
 
-    combined_data = ret_data[0] + conv_data[0]
+    # Ensure data are dictionaries with keys as 'Trader_ID'
+    ret_data_dict = {item['Trader_ID']: item for item in ret_data[0]}
+    conv_data_dict = {item['Trader_ID']: item for item in conv_data[0]}
+
+    # Combine the data from both sources based on Trader_ID
+    combined_keys = set(ret_data_dict.keys()).union(set(conv_data_dict.keys()))
+    combined_data = []
+
+    for key in combined_keys:
+        combined_row = {}
+        if key in ret_data_dict:
+            combined_row.update(ret_data_dict[key])
+        if key in conv_data_dict:
+            combined_row.update(conv_data_dict[key])
+        combined_data.append(combined_row)
 
     logging.debug(f"Combined data: {combined_data}")
 
@@ -959,7 +973,7 @@ async def get_total_builder_data_props(props):
                 created_month = row.get('Ticket_Created_At').month if row.get('Ticket_Created_At') else None
                 ftd_month = row.get('Trader_Ftd_Date').month if row.get('Trader_Ftd_Date') else None
                 if created_month == ftd_month:
-                    prepared_data[key][metric] = prepared_data[key]['$Net'] / prepared_data[key]['#FTD']
+                    prepared_data[key][metric] = prepared_data[key]['$Net'] / prepared_data[key]['#FTDs']
             elif metric == 'NA%':
                 if row.get('Trader_Sale_Status') in ['No answer 5 UP', 'No answer 1-5']:
                     prepared_data[key]['NA_Count'] += 1
