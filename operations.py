@@ -904,9 +904,10 @@ async def get_total_builder_data_props(props):
     prepared_data = defaultdict(lambda: {metric: 0 for metric in metrics})
 
     # Ensure data are dictionaries with keys as 'Trader_ID'
-    ret_data_dict = {item['Trader_ID']: item for item in ret_data}
-    conv_data_dict = {item['Trader_ID']: item for item in conv_data}
-
+    #ret_data_dict = {item['Trader_ID']: item for item in ret_data}
+    #conv_data_dict = {item['Trader_ID']: item for item in conv_data}
+    ret_data_dict = ret_data
+    conv_data_dict = conv_data
     # Combine the data from both sources based on Trader_ID
     combined_keys = set(ret_data_dict.keys()).union(set(conv_data_dict.keys()))
     combined_data = []
