@@ -122,7 +122,7 @@ async def get_builder_data_props():
         'metrics': metrics
     }
     #metrix = str()
-    data = await get_total_builder_data(props)
+    data = await get_total_builder_data_props(props)
 
     response = jsonify(data)
     response.headers.add("Access-Control-Allow-Origin", "*")
