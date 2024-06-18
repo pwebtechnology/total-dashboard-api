@@ -1014,6 +1014,6 @@ async def get_total_builder_data_props(props):
             'total_items': total_count,
             'total_pages': (total_count + page_size - 1) // page_size
         },
-        'records': paginated_result
+        'records': ret_data
     })
 
