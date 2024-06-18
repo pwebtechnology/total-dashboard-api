@@ -897,7 +897,8 @@ async def get_total_builder_data_props(props):
         get_retention_data_builder(props),
         get_conversion_data_builder(props)
     )
-
+    print(ret_data)
+    print("conv data", conv_data)
     dimensions = props.get('dimensions', ['Trader_ID'])
     metrics = props.get('metrics', [])
     prepared_data = defaultdict(lambda: {metric: 0 for metric in metrics})
