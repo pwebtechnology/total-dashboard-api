@@ -903,8 +903,8 @@ async def get_total_builder_data_props(props):
     prepared_data = defaultdict(lambda: {metric: 0 for metric in metrics})
 
     # Ensure data are dictionaries with keys as 'Trader_ID'
-    ret_data_dict = {item['Trader_ID']: item for item in ret_data[0]}
-    conv_data_dict = {item['Trader_ID']: item for item in conv_data[0]}
+    ret_data_dict = {item['Trader_ID']: item for item in ret_data}
+    conv_data_dict = {item['Trader_ID']: item for item in conv_data}
 
     # Combine the data from both sources based on Trader_ID
     combined_keys = set(ret_data_dict.keys()).union(set(conv_data_dict.keys()))
@@ -998,7 +998,7 @@ async def get_total_builder_data_props(props):
         for key, trader_data in prepared_data.items()
     ]
 
-    total_count = max(ret_data[1], conv_data[1])
+    total_count = max(ret_data, conv_data)
     page_index = props.get('pageIndex', 0)
     page_size = props.get('pageSize', 20)
     start = page_index * page_size
