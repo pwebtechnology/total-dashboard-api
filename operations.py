@@ -899,6 +899,7 @@ async def get_total_builder_data_props(props):
     )
     print(ret_data)
     print("conv data", conv_data)
+    '''
     dimensions = props.get('dimensions', ['Trader_ID'])
     metrics = props.get('metrics', [])
     prepared_data = defaultdict(lambda: {metric: 0 for metric in metrics})
@@ -1007,13 +1008,15 @@ async def get_total_builder_data_props(props):
     end = start + page_size
 
     paginated_result = result[start:end]
+    '''
+
 
     return json.dumps({
         'pagination': {
-            'pageIndex': page_index + 1,
-            'pageSize': page_size,
-            'total_items': total_count,
-            'total_pages': (total_count + page_size - 1) // page_size
+            'pageIndex': 1,
+            'pageSize': 1,
+            'total_items': 1,
+            'total_pages': 1
         },
         'records': ret_data
     })
