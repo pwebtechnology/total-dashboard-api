@@ -894,18 +894,20 @@ async def get_retention_data_builder_full(props):
 async def get_total_builder_data_props(props):
     st = time.time()
     ret_data, conv_data = await asyncio.gather(
-        get_retention_data_builder_full(props),
-        get_conversion_data_builder_full(props)
+        get_retention_data_builder(props),
+        get_conversion_data_builder(props)
     )
 
     dimensions = props.get('dimentions', ['Trader_ID'])
     metrics = props.get('metrics', [])
     prepared_data = defaultdict(lambda: {metric: 0 for metric in metrics})
 
-    combined_data = ret_data['result'] + conv_data['result']
+    combined_data = ret_data[0] + conv_data[0]
+
+    logging.debug(f"Combined data: {combined_data}")
 
     for row in combined_data:
-        key = tuple(row[dim] for dim in dimensions)
+        key = tuple(row.get(dim) for dim in dimensions)
         for metric in metrics:
             if metric == '#Leads':
                 prepared_data[key][metric] += 1
@@ -975,10 +977,28 @@ async def get_total_builder_data_props(props):
                     prepared_data[key]['CallBack_Count'] += 1
                 prepared_data[key][metric] = get_percent(prepared_data[key]['CallBack_Count'] / prepared_data[key]['#Leads'])
 
-    result = {
-        '_'.join(map(str, key)): {**trader_data, **{dim: key[i] for i, dim in enumerate(dimensions)}}
-        for key, trader_data in prepared_data.items()
-    }
+    logging.debug(f"Prepared data: {prepared_data}")
 
-    return json.dumps({'result': result, 'total_count': max(ret_data['total_count'], conv_data['total_count'])})
+    result = [
+        {**trader_data, **{dim: key[i] for i, dim in enumerate(dimensions)}}
+        for key, trader_data in prepared_data.items()
+    ]
+
+    total_count = max(ret_data[1], conv_data[1])
+    page_index = props.get('pageIndex', 0)
+    page_size = props.get('pageSize', 20)
+    start = page_index * page_size
+    end = start + page_size
+
+    paginated_result = result[start:end]
+
+    return json.dumps({
+        'pagination': {
+            'pageIndex': page_index + 1,
+            'pageSize': page_size,
+            'total_items': total_count,
+            'total_pages': (total_count + page_size - 1) // page_size
+        },
+        'records': paginated_result
+    })
 
