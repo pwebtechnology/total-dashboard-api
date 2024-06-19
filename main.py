@@ -124,8 +124,8 @@ async def get_builder_data_props():
     #metrix = str()
     data = await get_total_builder_data_props(props)
 
-    #response = jsonify(data)
-    response = data
+    response = jsonify(data)
+    #response = data
     response.headers.add("Access-Control-Allow-Origin", "*")
 
     response.headers.add("ngrok-skip-browser-warning", '69420')
