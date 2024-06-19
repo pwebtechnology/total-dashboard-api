@@ -86,7 +86,7 @@ async def execute_data_from_conversion_crm_builder(props):
     current_query = query(props) if props else queryAll
     result, total_count = await execute_data_from_crm_builder(database, conv_collections, current_query)
     renamed_result = [{conv_key_renames.get(k, k): v for k, v in item.items()} for item in result]
-    return renamed_result, total_count
+    return {'data': renamed_result,'total_count': total_count}
 
 
 async def execute_data_from_retention_crm(props=None):
@@ -112,4 +112,4 @@ async def execute_data_from_retention_crm_builder(props):
     current_query = query(props) if props else queryAll
     result, total_count = await execute_data_from_crm_builder(database, ret_collections, current_query)
     renamed_result = [{ret_key_renames.get(k, k): v for k, v in item.items()} for item in result]
-    return renamed_result, total_count
+    return {'data': renamed_result,'total_count': total_count}
