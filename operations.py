@@ -894,8 +894,8 @@ async def get_retention_data_builder_full(props):
 async def get_total_builder_data_props(props):
     st = time.time()
     ret_data, conv_data = await asyncio.gather(
-        get_retention_data_builder(props),
-        get_conversion_data_builder(props)
+        get_retention_data_builder_full(props),
+        get_conversion_data_builder_full(props)
     )
     print(ret_data)
     print("conv data", conv_data)
