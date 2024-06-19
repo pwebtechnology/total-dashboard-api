@@ -893,35 +893,21 @@ async def get_retention_data_builder_full(props):
     return await execute_data_from_conversion_crm_builder(props)
 async def get_total_builder_data_props(props):
     st = time.time()
-    ret_data, conv_data = await asyncio.gather(
-        get_retention_data_builder_full(props),
-        get_conversion_data_builder_full(props)
-    )
-    print(ret_data)
-    print("conv data", conv_data)
+    ret_data_future = get_retention_data_builder(props)
+    conv_data_future = get_conversion_data_builder(props)
 
-    dimensions = props.get('dimensions', ['Trader_ID'])
+    ret_data_result, conv_data_result = await asyncio.gather(ret_data_future, conv_data_future)
+
+    ret_data = ret_data_result['data']
+    conv_data = conv_data_result['data']
+
+    total_count = max(ret_data_result['total_count'], conv_data_result['total_count'])
+
+    dimensions = props.get('dimentions', ['Trader_ID'])
     metrics = props.get('metrics', [])
     prepared_data = defaultdict(lambda: {metric: 0 for metric in metrics})
 
-    # Ensure data are dictionaries with keys as 'Trader_ID'
-    #ret_data_dict = {item['Trader_ID']: item for item in ret_data}
-    #conv_data_dict = {item['Trader_ID']: item for item in conv_data}
-    ret_data_dict = ret_data
-    conv_data_dict = conv_data
-    # Combine the data from both sources based on Trader_ID
-    combined_keys = set(ret_data_dict.keys()).union(set(conv_data_dict.keys()))
-    combined_data = []
-
-    for key in combined_keys:
-        combined_row = {}
-        if key in ret_data_dict:
-            combined_row.update(ret_data_dict[key])
-        if key in conv_data_dict:
-            combined_row.update(conv_data_dict[key])
-        combined_data.append(combined_row)
-
-    logging.debug(f"Combined data: {combined_data}")
+    combined_data = ret_data + conv_data
 
     for row in combined_data:
         key = tuple(row.get(dim) for dim in dimensions)
