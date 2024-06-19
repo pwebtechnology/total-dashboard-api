@@ -905,12 +905,17 @@ async def get_total_builder_data_props(props):
 
     dimensions = props.get('dimentions', ['Trader_ID'])
     metrics = props.get('metrics', [])
-    prepared_data = defaultdict(lambda: {metric: 0 for metric in metrics})
-
     combined_data = ret_data + conv_data
+
+    prepared_data = defaultdict(lambda: {metric: 0 for metric in metrics})
 
     for row in combined_data:
         key = tuple(row.get(dim) for dim in dimensions)
+
+        if key not in prepared_data:
+            prepared_data[key] = {metric: 0 for metric in metrics}
+            for dim in dimensions:
+                prepared_data[key][dim] = row.get(dim)
         for metric in metrics:
             if metric == '#Leads':
                 prepared_data[key][metric] += 1
@@ -1004,7 +1009,7 @@ async def get_total_builder_data_props(props):
             'total_items': 1,
             'total_pages': 1
         },
-        'records': ret_data
+        'records': paginated_result
     })
 
     #return ret_data
