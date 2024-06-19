@@ -113,3 +113,26 @@ async def execute_data_from_retention_crm_builder(props):
     result, total_count = await execute_data_from_crm_builder(database, ret_collections, current_query)
     renamed_result = [{ret_key_renames.get(k, k): v for k, v in item.items()} for item in result]
     return {'data': renamed_result,'total_count': total_count}
+
+
+async def execute_ret_collection_names():
+    mongo_client = MongoClient(mongo_uri, server_api=ServerApi('1'))
+    db = mongo_client['admin']
+    collection = db['ret_etl_controll']
+    brands = collection.find({},{"_id":0, "brand":1})
+    ret_collections = []
+    for brand in brands:
+        col_name = str("tickets_data_crm_"+ brand)
+        ret_collections.append(col_name)
+    return ret_collections
+
+async def execute_conv_collection_names():
+    mongo_client = MongoClient(mongo_uri, server_api=ServerApi('1'))
+    db = mongo_client['admin']
+    collection = db['conv_etl_controll']
+    brands = collection.find({},{"_id":0, "brand":1})
+    conv_collections = []
+    for brand in brands:
+        col_name = str("traders_data_crm_"+ brand)
+        conv_collections.append(col_name)
+    return conv_collections
