@@ -112,8 +112,8 @@ async def get_builder_data_total():
 async def get_builder_data_props():
     pageIndex = int(request.args.get('pageIndex', 0))
     pageSize = int(request.args.get('pageSize', 10))
-    dimentions = request.args.getlist('dimentions[]')
-    metrics = request.args.getlist('metrics[]')
+    dimentions = request.args.getlist('dimentions[]',['Trader_ID'])
+    metrics = request.args.getlist('metrics[]','#FTDs')
 
     props = {
         'pageIndex': pageIndex,
