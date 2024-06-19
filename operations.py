@@ -908,7 +908,7 @@ async def get_total_builder_data_props(props):
     combined_data = ret_data + conv_data
 
     prepared_data = defaultdict(lambda: {metric: 0 for metric in metrics})
-
+    '''
     for row in combined_data:
         key = tuple(row.get(dim) for dim in dimensions)
 
@@ -1011,6 +1011,6 @@ async def get_total_builder_data_props(props):
         },
         'records': paginated_result
     })
-
-    #return ret_data
+'''
+    return combined_data
 
