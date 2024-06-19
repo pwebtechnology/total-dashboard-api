@@ -1010,7 +1010,7 @@ async def get_total_builder_data_props(props):
     paginated_result = result[start:end]
     '''
 
-
+    '''
     return json.dumps({
         'pagination': {
             'pageIndex': 1,
@@ -1020,4 +1020,6 @@ async def get_total_builder_data_props(props):
         },
         'records': ret_data
     })
+    '''
+    return ret_data
 
