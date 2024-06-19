@@ -903,10 +903,10 @@ async def get_total_builder_data_props(props):
 
     total_count = max(ret_data_result['total_count'], conv_data_result['total_count'])
 
-    dimensions = props.get('dimentions',['Trader_ID'])
+    dimensions = props.get('dimentions',['Customer_ID'])
     metrics = props.get('metrics', '#FTDs')
     combined_data = ret_data + conv_data
-    print(combined_data)
+    #print(combined_data)
     prepared_data = defaultdict(lambda: {metric: 0 for metric in metrics})
 
     for row in combined_data:
@@ -918,6 +918,7 @@ async def get_total_builder_data_props(props):
                 prepared_data[key][dim] = row.get(dim)
         for metric in metrics:
             if metric == '#Leads':
+                print("start calculating leads")
                 prepared_data[key][metric] += 1
             elif metric == '#FTDs':
                 prepared_data[key][metric] += row.get('Trader_Is_Ftd', 0)
@@ -985,8 +986,8 @@ async def get_total_builder_data_props(props):
                     prepared_data[key]['CallBack_Count'] += 1
                 prepared_data[key][metric] = get_percent(prepared_data[key]['CallBack_Count'] / prepared_data[key]['#Leads'])
 
-    logging.debug(f"Prepared data: {prepared_data}")
-    print("calculated data:", prepared_data)
+    #logging.debug(f"Prepared data: {prepared_data}")
+    #print("calculated data:", prepared_data)
     result = [
         {**trader_data, **{dim: key[i] for i, dim in enumerate(dimensions)}}
         for key, trader_data in prepared_data.items()
