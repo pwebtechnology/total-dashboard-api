@@ -908,7 +908,7 @@ async def get_total_builder_data_props(props):
     combined_data = ret_data + conv_data
 
     prepared_data = defaultdict(lambda: {metric: 0 for metric in metrics})
-    '''
+
     for row in combined_data:
         key = tuple(row.get(dim) for dim in dimensions)
 
@@ -1004,13 +1004,13 @@ async def get_total_builder_data_props(props):
 
     return json.dumps({
         'pagination': {
-            'pageIndex': 1,
-            'pageSize': 1,
-            'total_items': 1,
-            'total_pages': 1
+            'pageIndex': page_index,
+            'pageSize': page_size,
+            'total_items': total_count,
+            'total_pages': round(total_count/page_size,0)
         },
         'records': paginated_result
     })
-'''
-    return combined_data
+
+    #return combined_data
 
