@@ -992,7 +992,7 @@ async def get_total_builder_data_props(props):
         for key, trader_data in prepared_data.items()
     ]
 
-    total_count = max(ret_data, conv_data)
+    total_count = max(ret_data_result['total_count'], conv_data_result['total_count'])
     page_index = props.get('pageIndex', 0)
     page_size = props.get('pageSize', 20)
     start = page_index * page_size
