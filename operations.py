@@ -986,7 +986,7 @@ async def get_total_builder_data_props(props):
                 prepared_data[key][metric] = get_percent(prepared_data[key]['CallBack_Count'] / prepared_data[key]['#Leads'])
 
     logging.debug(f"Prepared data: {prepared_data}")
-    #print("calculated data:", trader_data)
+    print("calculated data:", trader_data)
     result = [
         {**trader_data, **{dim: key[i] for i, dim in enumerate(dimensions)}}
         for key, trader_data in prepared_data.items()
