@@ -919,10 +919,10 @@ async def get_total_builder_data_props(props):
             for dim in dimensions:
                 prepared_data[key][dim] = row.get(dim)
         for metric in metrics:
-            if metric == '#Leads':
+            if metric == 'Leads':
                 logging.debug(f"Here is metric Leads")
                 prepared_data[key][metric] += 1
-            elif metric == '#FTDs':
+            elif metric == 'FTDs':
                 logging.debug(f"Here is metric FTDs")
                 prepared_data[key][metric] += row.get('Trader_Is_Ftd', 0)
             elif metric == '$FTDs':
