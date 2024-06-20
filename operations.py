@@ -902,7 +902,7 @@ async def get_total_builder_data_props(props):
     conv_data = conv_data_result['data']
 
     total_count = max(ret_data_result['total_count'], conv_data_result['total_count'])
-
+    print(props)
     dimensions = props.get('dimentions',['Customer_ID'])
     metrics = props.get('metrics', '#FTDs')
     combined_data = ret_data + conv_data
