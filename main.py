@@ -114,7 +114,7 @@ async def get_builder_data_props():
     pageSize = int(request.args.get('pageSize', 10))
     dimentions = request.args.getlist('dimentions[]')
     metrics = request.args.getlist('metrics[]')
-
+    print(metrics)
     props = {
         'pageIndex': pageIndex,
         'pageSize': pageSize,
