@@ -919,7 +919,6 @@ async def get_total_builder_data_props(props):
                 prepared_data[key][dim] = row.get(dim)
         for metric in metrics:
             if metric == 'Leads':
-                logging.debug(f"Here is metric Leads")
                 prepared_data[key][metric] += 1
             elif metric == 'FTDs':
                 logging.debug(f"Here is metric FTDs")
