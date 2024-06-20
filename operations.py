@@ -904,7 +904,7 @@ async def get_total_builder_data_props(props):
     total_count = max(ret_data_result['total_count'], conv_data_result['total_count'])
     logging.debug(props)
     dimensions = props.get('dimentions',['Customer_ID'])
-    metrics = props.get('metrics', '#FTDs')
+    metrics = props.get('metrics', 'FTDs')
     combined_data = ret_data + conv_data
     #print(combined_data)
     prepared_data = defaultdict(lambda: {metric: 0 for metric in metrics})
@@ -945,7 +945,7 @@ async def get_total_builder_data_props(props):
                 if row.get('Ticket_Type') == "Deposit":
                     prepared_data[key]['Total_deposit'] += row.get('Ticket_Amount_USD', 0)
                 if row.get('Ticket_Type') == "Withdrawal":
-                    prepared_data[key]['$WD'] += row.get('Ticket_Amount_USD', 0)
+                    prepared_data[key]['WD'] += row.get('Ticket_Amount_USD', 0)
                 prepared_data[key][metric] = prepared_data[key]['$Total_deposit'] - prepared_data[key]['$WD']
             elif metric == 'PV':
                 if row.get('Ticket_Type') == "Deposit":
@@ -994,7 +994,7 @@ async def get_total_builder_data_props(props):
         for key, trader_data in prepared_data.items()
     ]
 
-    total_count = max(ret_data_result['total_count'], conv_data_result['total_count'])
+    total_count = len(result)
     page_index = props.get('pageIndex', 0)
     page_size = props.get('pageSize', 20)
     start = page_index * page_size
