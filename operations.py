@@ -918,75 +918,74 @@ async def get_total_builder_data_props(props):
             for dim in dimensions:
                 prepared_data[key][dim] = row.get(dim)
         for metric in metrics:
-            if metric == 'Leads#':
-                logging.debug(f"Here is metric Leads")
+            if metric == 'Leads':
                 prepared_data[key][metric] += 1
             elif metric == 'FTDs':
                 logging.debug(f"Here is metric FTDs")
                 prepared_data[key][metric] += row.get('Trader_Is_Ftd', 0)
-            elif metric == '$FTDs':
+            elif metric == 'FTD_Sum':
                 prepared_data[key][metric] += row.get('Ticket_Amount_USD', 0) if row.get('Trader_Is_Ftd') else 0
-            elif metric == '#std':
+            elif metric == 'std':
                 prepared_data[key][metric] += row.get('STD', 0)
-            elif metric == '$std':
+            elif metric == 'std_sum':
                 prepared_data[key][metric] += row.get('Ticket_Amount_USD', 0) if row.get('STD') else 0
-            elif metric == '#rdp':
+            elif metric == 'rdp':
                 if row.get('Ticket_Type') == "Deposit" and row.get('Trader_Is_Ftd') == 0:
                     prepared_data[key][metric] += 1
-            elif metric == '$rdp':
+            elif metric == 'rdp_sum':
                 if row.get('Ticket_Type') == "Deposit" and row.get('Trader_Is_Ftd') == 0:
                     prepared_data[key][metric] += row.get('Ticket_Amount_USD', 0)
-            elif metric == '$Total_deposit':
+            elif metric == 'Total_deposit':
                 if row.get('Ticket_Type') == "Deposit":
                     prepared_data[key][metric] += row.get('Ticket_Amount_USD', 0)
-            elif metric == '$WD':
+            elif metric == 'WD':
                 if row.get('Ticket_Type') == "Withdrawal":
                     prepared_data[key][metric] += row.get('Ticket_Amount_USD', 0)
-            elif metric == '$Net':
+            elif metric == 'Net':
                 if row.get('Ticket_Type') == "Deposit":
-                    prepared_data[key]['$Total_deposit'] += row.get('Ticket_Amount_USD', 0)
+                    prepared_data[key]['Total_deposit'] += row.get('Ticket_Amount_USD', 0)
                 if row.get('Ticket_Type') == "Withdrawal":
                     prepared_data[key]['$WD'] += row.get('Ticket_Amount_USD', 0)
                 prepared_data[key][metric] = prepared_data[key]['$Total_deposit'] - prepared_data[key]['$WD']
             elif metric == 'PV':
                 if row.get('Ticket_Type') == "Deposit":
-                    prepared_data[key]['$Total_deposit'] += row.get('Ticket_Amount_USD', 0)
+                    prepared_data[key]['Total_deposit'] += row.get('Ticket_Amount_USD', 0)
                 if row.get('Ticket_Type') == "Withdrawal":
-                    prepared_data[key]['$WD'] += row.get('Ticket_Amount_USD', 0)
-                prepared_data[key]['$Net'] = prepared_data[key]['$Total_deposit'] - prepared_data[key]['$WD']
-                prepared_data[key]['#FTDs'] = max(prepared_data[key]['#FTDs'], 1)
-                prepared_data[key][metric] = prepared_data[key]['$Net'] / prepared_data[key]['#FTDs']
-            elif metric == 'STD_rate%':
-                prepared_data[key]['#std'] = max(prepared_data[key]['#std'], 1)
-                prepared_data[key][metric] = get_percent(prepared_data[key]['#std'] / prepared_data[key]['#FTDs'])
-            elif metric == 'CR%':
-                prepared_data[key][metric] = get_percent(prepared_data[key]['#FTDs'] / prepared_data[key]['#Leads'])
-            elif metric == 'InCR%':
+                    prepared_data[key]['WD'] += row.get('Ticket_Amount_USD', 0)
+                prepared_data[key]['Net'] = prepared_data[key]['$Total_deposit'] - prepared_data[key]['WD']
+                prepared_data[key]['FTDs'] = max(prepared_data[key]['#FTDs'], 1)
+                prepared_data[key][metric] = prepared_data[key]['Net'] / prepared_data[key]['FTDs']
+            elif metric == 'STD_rate':
+                prepared_data[key]['std'] = max(prepared_data[key]['std'], 1)
+                prepared_data[key][metric] = get_percent(prepared_data[key]['std'] / prepared_data[key]['FTDs'])
+            elif metric == 'CR':
+                prepared_data[key][metric] = get_percent(prepared_data[key]['FTDs'] / prepared_data[key]['Leads'])
+            elif metric == 'InCR':
                 reg_month = row.get('Trader_Registered_At').month if row.get('Trader_Registered_At') else None
                 ftd_month = row.get('Trader_Ftd_Date').month if row.get('Trader_Ftd_Date') else None
                 if reg_month == ftd_month:
                     prepared_data[key][metric] = get_percent(prepared_data[key]['#FTDs'] / prepared_data[key]['#Leads'])
-            elif metric == 'InTRV$':
+            elif metric == 'InTRV':
                 created_month = row.get('Ticket_Created_At').month if row.get('Ticket_Created_At') else None
                 ftd_month = row.get('Trader_Ftd_Date').month if row.get('Trader_Ftd_Date') else None
                 if created_month == ftd_month:
-                    prepared_data[key][metric] = prepared_data[key]['$Net'] / prepared_data[key]['#FTDs']
-            elif metric == 'NA%':
+                    prepared_data[key][metric] = prepared_data[key]['Net'] / prepared_data[key]['FTDs']
+            elif metric == 'NA':
                 if row.get('Trader_Sale_Status') in ['No answer 5 UP', 'No answer 1-5']:
                     prepared_data[key]['NA_Count'] += 1
-                prepared_data[key][metric] = get_percent(prepared_data[key]['NA_Count'] / prepared_data[key]['#Leads'])
-            elif metric == 'Autologin%':
+                prepared_data[key][metric] = get_percent(prepared_data[key]['NA_Count'] / prepared_data[key]['Leads'])
+            elif metric == 'Autologin':
                 if row.get('Trader_Last_Login'):
                     prepared_data[key]['Autologin_Count'] += 1
-                prepared_data[key][metric] = get_percent(prepared_data[key]['Autologin_Count'] / prepared_data[key]['#Leads'])
-            elif metric == 'CallAgain%':
+                prepared_data[key][metric] = get_percent(prepared_data[key]['Autologin_Count'] / prepared_data[key]['Leads'])
+            elif metric == 'CallAgain':
                 if row.get('Trader_Sale_Status') == 'Call Again':
                     prepared_data[key]['CallAgain_Count'] += 1
-                prepared_data[key][metric] = get_percent(prepared_data[key]['CallAgain_Count'] / prepared_data[key]['#Leads'])
-            elif metric == 'CallBack%':
+                prepared_data[key][metric] = get_percent(prepared_data[key]['CallAgain_Count'] / prepared_data[key]['Leads'])
+            elif metric == 'CallBack':
                 if row.get('Trader_Sale_Status') == 'Call Back':
                     prepared_data[key]['CallBack_Count'] += 1
-                prepared_data[key][metric] = get_percent(prepared_data[key]['CallBack_Count'] / prepared_data[key]['#Leads'])
+                prepared_data[key][metric] = get_percent(prepared_data[key]['CallBack_Count'] / prepared_data[key]['Leads'])
 
     #logging.debug(f"Prepared data: {prepared_data}")
     #print("calculated data:", prepared_data)
