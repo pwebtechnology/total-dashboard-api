@@ -953,8 +953,8 @@ async def get_total_builder_data_props(props):
                     prepared_data[key]['Total_deposit'] += row.get('Ticket_Amount_USD', 0)
                 if row.get('Ticket_Type') == "Withdrawal":
                     prepared_data[key]['WD'] += row.get('Ticket_Amount_USD', 0)
-                prepared_data[key]['Net'] = prepared_data[key]['$Total_deposit'] - prepared_data[key]['WD']
-                prepared_data[key]['FTDs'] = max(prepared_data[key]['#FTDs'], 1)
+                prepared_data[key]['Net'] = prepared_data[key]['Total_deposit'] - prepared_data[key]['WD']
+                prepared_data[key]['FTDs'] = max(prepared_data[key]['FTDs'], 1)
                 prepared_data[key][metric] = prepared_data[key]['Net'] / prepared_data[key]['FTDs']
             elif metric == 'STD_rate':
                 prepared_data[key]['std'] = max(prepared_data[key]['std'], 1)
@@ -965,7 +965,7 @@ async def get_total_builder_data_props(props):
                 reg_month = row.get('Trader_Registered_At').month if row.get('Trader_Registered_At') else None
                 ftd_month = row.get('Trader_Ftd_Date').month if row.get('Trader_Ftd_Date') else None
                 if reg_month == ftd_month:
-                    prepared_data[key][metric] = get_percent(prepared_data[key]['#FTDs'] / prepared_data[key]['#Leads'])
+                    prepared_data[key][metric] = get_percent(prepared_data[key]['FTDs'] / prepared_data[key]['Leads'])
             elif metric == 'InTRV':
                 created_month = row.get('Ticket_Created_At').month if row.get('Ticket_Created_At') else None
                 ftd_month = row.get('Trader_Ftd_Date').month if row.get('Trader_Ftd_Date') else None

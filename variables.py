@@ -47,7 +47,8 @@ ret_key_renames = {
     'Brand': 'Brand_Ret',
     'Trader_Ftd_Date': 'FTD_Date',
     'Desk_Desk_Name': 'Desk_Retention',
-    'is_removed': 'Is_removed'
+    'is_removed': 'Is_removed',
+    'Ticket_Amount_USD':'Ticket_Amount_USD'
 }
 
 def queryConvCompare(props):
