@@ -906,7 +906,8 @@ async def get_total_builder_data_props(props):
     dimensions = props.get('dimentions',['Customer_ID'])
     metrics = props.get('metrics', 'FTDs')
     combined_data = ret_data + conv_data
-    #print(combined_data)
+    print(combined_data)
+    logging.debug(combined_data)
     prepared_data = defaultdict(lambda: {metric: 0 for metric in metrics})
 
     for row in combined_data:
