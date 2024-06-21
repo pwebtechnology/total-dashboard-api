@@ -947,7 +947,7 @@ async def get_total_builder_data_props(props):
                     prepared_data[key]['Total_deposit'] += row.get('Ticket_Amount_USD', 0)
                 if row.get('Ticket_Type') == "Withdrawal":
                     prepared_data[key]['WD'] += row.get('Ticket_Amount_USD', 0)
-                prepared_data[key][metric] = prepared_data[key]['$Total_deposit'] - prepared_data[key]['$WD']
+                prepared_data[key][metric] = prepared_data[key]['Total_deposit'] - prepared_data[key]['WD']
             elif metric == 'PV':
                 if row.get('Ticket_Type') == "Deposit":
                     prepared_data[key]['Total_deposit'] += row.get('Ticket_Amount_USD', 0)
