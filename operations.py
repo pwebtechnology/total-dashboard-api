@@ -935,18 +935,18 @@ async def get_total_builder_data_props(props):
                     prepared_data[key][metric] += 1
             elif metric == 'rdp_sum':
                 if row.get('Ticket_Type') == "Deposit" and row.get('Trader_Is_Ftd') == 0:
-                    prepared_data[key][metric] += row.get('Ticket_Amount_USD', 0)
+                    prepared_data[key][metric] += row.get('Ticket_Amount_USD')
             elif metric == 'Total_deposit':
                 if row.get('Ticket_Type') == "Deposit":
-                    prepared_data[key][metric] += row.get('Ticket_Amount_USD', 0)
+                    prepared_data[key][metric] += row.get('Ticket_Amount_USD')
             elif metric == 'WD':
                 if row.get('Ticket_Type') == "Withdrawal":
-                    prepared_data[key][metric] += row.get('Ticket_Amount_USD', 0)
+                    prepared_data[key][metric] += row.get('Ticket_Amount_USD')
             elif metric == 'Net':
                 if row.get('Ticket_Type') == "Deposit":
-                    prepared_data[key]['Total_deposit'] += row.get('Ticket_Amount_USD', 0)
+                    prepared_data[key]['Total_deposit'] += row.get('Ticket_Amount_USD')
                 if row.get('Ticket_Type') == "Withdrawal":
-                    prepared_data[key]['WD'] += row.get('Ticket_Amount_USD', 0)
+                    prepared_data[key]['WD'] += row.get('Ticket_Amount_USD')
                 prepared_data[key][metric] = prepared_data[key]['Total_deposit'] - prepared_data[key]['WD']
             elif metric == 'PV':
                 if row.get('Ticket_Type') == "Deposit":
