@@ -78,3 +78,23 @@ def compare_functions(start, end, divider):
 
 def get_percent(number):
     return round(number * 10000) / 100;
+
+
+def merge_data(conv_data, ret_data):
+    # Convert conv_data to a dictionary keyed by Customer_ID for fast lookup
+    conv_data_dict = {item['Customer_ID']: item for item in conv_data}
+
+    merged_data = []
+
+    for ret_item in ret_data:
+        customer_id = ret_item['Customer_ID']
+
+        # Look for the corresponding item in conv_data
+        conv_item = conv_data_dict.get(customer_id, {})
+
+        # Merge the two dictionaries, with ret_item taking precedence
+        merged_item = {**conv_item, **ret_item}
+
+        merged_data.append(merged_item)
+
+    return merged_data
