@@ -906,15 +906,12 @@ async def get_total_builder_data_props(props):
     dimensions = props.get('dimentions',['Customer_ID'])
     metrics = props.get('metrics', 'FTDs')
     combined_data = ret_data + conv_data
-    print(combined_data)
-    logging.debug(combined_data)
     prepared_data = defaultdict(lambda: {metric: 0 for metric in metrics})
 
     for row in combined_data:
         key = tuple(row.get(dim) for dim in dimensions)
 
         if key not in prepared_data:
-            logging.debug(f"Here is code running")
             prepared_data[key] = {metric: 0 for metric in metrics}
             for dim in dimensions:
                 prepared_data[key][dim] = row.get(dim)
@@ -925,7 +922,9 @@ async def get_total_builder_data_props(props):
                 logging.debug(f"Here is metric FTDs")
                 prepared_data[key][metric] += row.get('Trader_Is_Ftd', 0)
             elif metric == 'FTD_Sum':
-                prepared_data[key][metric] += row.get('Ticket_Amount_USD', 0) if row.get('Trader_Is_Ftd') else 0
+                print(row.get('Ticket_Amount_USD', 0))
+                logging.debug(row.get('Ticket_Amount_USD', 0))
+                prepared_data[key][metric] += int(row.get('Ticket_Amount_USD', 0)) if row.get('Trader_Is_Ftd') else 0
             elif metric == 'std':
                 prepared_data[key][metric] += row.get('STD', 0)
             elif metric == 'std_sum':
@@ -988,8 +987,6 @@ async def get_total_builder_data_props(props):
                     prepared_data[key]['CallBack_Count'] += 1
                 prepared_data[key][metric] = get_percent(prepared_data[key]['CallBack_Count'] / prepared_data[key]['Leads'])
 
-    #logging.debug(f"Prepared data: {prepared_data}")
-    #print("calculated data:", prepared_data)
     result = [
         {**trader_data, **{dim: key[i] for i, dim in enumerate(dimensions)}}
         for key, trader_data in prepared_data.items()
