@@ -447,7 +447,7 @@ payment_parametrs_builder = {
 
 
 payment_collection = ['payments']
-conv_collections = ["traders_data_crm", "traders_data_crm_bestinvest", "traders_data_crm_pulsetrade","traders_data_origintarget","traders_data_triumphwhite"]
+conv_collections = ["traders_data_crm", "traders_data_crm_bestinvest", "traders_data_crm_pulsetrade","traders_data_origintarget","traders_data_triumphwhite", "traders_data_crm_themetalchain"]
 ret_collections = ['tickets_data_crm_beglobalfund',
                    'tickets_data_crm_call4trade',
                    'tickets_data_crm_capitalbmarket',
@@ -475,4 +475,7 @@ ret_collections = ['tickets_data_crm_beglobalfund',
                    "tickets_data_crm_reinholdsgold",
                    "tickets_data_crm_introode",
                    "tickets_data_crm_goldentargets",
-                   "tickets_data_crm_astronixfund"]
+                   "tickets_data_crm_astronixfund",
+                   "tickets_data_crm_trustoneunions",
+                   "tickets_data_crm_phenix_trust_ltd",
+                   "tickets_data_crm_centuryonetrust"]
