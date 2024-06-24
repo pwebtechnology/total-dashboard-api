@@ -930,30 +930,30 @@ async def get_total_builder_data_props(props):
             elif metric == 'std':
                 prepared_data[key][metric] += row.get('STD', 0)
             elif metric == 'std_sum':
-                prepared_data[key][metric] += row.get('Ticket_Amount_USD', 0) if row.get('STD') else 0
+                prepared_data[key][metric] += int(row.get('Ticket_Amount_USD', 0)) if row.get('STD') else 0
             elif metric == 'rdp':
                 if row.get('Ticket_Type') == "Deposit" and row.get('Trader_Is_Ftd') == 0:
                     prepared_data[key][metric] += 1
             elif metric == 'rdp_sum':
                 if row.get('Ticket_Type') == "Deposit" and row.get('Trader_Is_Ftd') == 0:
-                    prepared_data[key][metric] += row.get('Ticket_Amount_USD')
+                    prepared_data[key][metric] += int(row.get('Ticket_Amount_USD'))
             elif metric == 'Total_deposit':
                 if row.get('Ticket_Type') == "Deposit":
-                    prepared_data[key][metric] += row.get('Ticket_Amount_USD')
+                    prepared_data[key][metric] += int(row.get('Ticket_Amount_USD'))
             elif metric == 'WD':
                 if row.get('Ticket_Type') == "Withdrawal":
-                    prepared_data[key][metric] += row.get('Ticket_Amount_USD')
+                    prepared_data[key][metric] += int(row.get('Ticket_Amount_USD'))
             elif metric == 'Net':
                 if row.get('Ticket_Type') == "Deposit":
-                    prepared_data[key]['Total_deposit'] += row.get('Ticket_Amount_USD')
+                    prepared_data[key]['Total_deposit'] += int(row.get('Ticket_Amount_USD'))
                 if row.get('Ticket_Type') == "Withdrawal":
-                    prepared_data[key]['WD'] += row.get('Ticket_Amount_USD')
+                    prepared_data[key]['WD'] += int(row.get('Ticket_Amount_USD'))
                 prepared_data[key][metric] = prepared_data[key]['Total_deposit'] - prepared_data[key]['WD']
             elif metric == 'PV':
                 if row.get('Ticket_Type') == "Deposit":
-                    prepared_data[key]['Total_deposit'] += row.get('Ticket_Amount_USD', 0)
+                    prepared_data[key]['Total_deposit'] += int(row.get('Ticket_Amount_USD', 0))
                 if row.get('Ticket_Type') == "Withdrawal":
-                    prepared_data[key]['WD'] += row.get('Ticket_Amount_USD', 0)
+                    prepared_data[key]['WD'] += int(row.get('Ticket_Amount_USD', 0))
                 prepared_data[key]['Net'] = prepared_data[key]['Total_deposit'] - prepared_data[key]['WD']
                 prepared_data[key]['FTDs'] = max(prepared_data[key]['FTDs'], 1)
                 prepared_data[key][metric] = prepared_data[key]['Net'] / prepared_data[key]['FTDs']
