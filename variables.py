@@ -263,7 +263,8 @@ conv_parameters_builder = {
     'queryAll': [
         {
             "$match": {
-                "Trader_Sale_Status": {"$ne": 'Test'}
+                "Trader_Sale_Status": {"$ne": 'Test'},
+                "Trader_Email": {"$ne": None}
             }
         },
     ],
