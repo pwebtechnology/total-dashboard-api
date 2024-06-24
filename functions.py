@@ -83,7 +83,7 @@ def get_percent(number):
 def merge_data(conv_data, ret_data):
     # Convert conv_data to a dictionary keyed by Customer_ID for fast lookup
     print("conv data:", conv_data)
-    print("ret data:", ret_data)
+    #print("ret data:", ret_data)
     conv_data_dict = {item['Trader_Email']: item for item in conv_data}
 
     merged_data = []
