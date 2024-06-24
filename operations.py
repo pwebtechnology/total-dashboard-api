@@ -890,7 +890,7 @@ async def get_conversion_data_builder_full(props):
     return await execute_data_from_conversion_crm_builder(props)
 
 async def get_retention_data_builder_full(props):
-    return await execute_data_from_conversion_crm_builder(props)
+    return await execute_data_from_retention_crm_builder(props)
 async def get_total_builder_data_props(props):
     st = time.time()
     ret_data_future = get_retention_data_builder_full(props)
