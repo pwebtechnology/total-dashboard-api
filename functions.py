@@ -84,12 +84,12 @@ def merge_data(conv_data, ret_data):
     # Convert conv_data to a dictionary keyed by Customer_ID for fast lookup
     print("conv data:", conv_data)
     #print("ret data:", ret_data)
-    conv_data_dict = {item['Trader_Email']: item for item in conv_data}
+    conv_data_dict = {item['Trader_Name']: item for item in conv_data}
 
     merged_data = []
 
     for ret_item in ret_data:
-        customer_id = ret_item['Trader_Email']
+        customer_id = ret_item['Trader_Name']
 
         # Look for the corresponding item in conv_data
         conv_item = conv_data_dict.get(customer_id, {})
