@@ -32,7 +32,8 @@ conv_key_renames = {
     'Trader_First_assigned_broker': 'Broker_Conv',
     'Brand': 'Brand_Conv',
     'Trader_Ftd_Date': 'FTD_Date',
-    'Trader_Last_Login': 'Last_login'
+    'Trader_Last_Login': 'Last_login',
+    'Trader_Email': 'Trader_Email'
 }
 
 ret_key_renames = {
@@ -49,7 +50,8 @@ ret_key_renames = {
     'Desk_Desk_Name': 'Desk_Retention',
     'is_removed': 'Is_removed',
     'Ticket_Amount_USD':'Ticket_Amount_USD',
-    'Ticket_Type': 'Ticket_Type'
+    'Ticket_Type': 'Ticket_Type',
+    'Trader_Email': 'Trader_Email'
 }
 
 def queryConvCompare(props):
