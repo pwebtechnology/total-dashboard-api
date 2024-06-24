@@ -341,6 +341,7 @@ ret_parameters_builder = {
                 "Desk_Desk_Name": {"$ne": "Test"},
                 "Trader_Ftd_Date": {"$ne": "Empty"},
                 "Ticket_Created_At": {"$ne": "Empty"},
+                "Trader_Email": {"$ne": None}
             }
         },
     ],
