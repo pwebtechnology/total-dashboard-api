@@ -900,15 +900,16 @@ async def get_total_builder_data_props(props):
 
     ret_data = ret_data_result['data']
     conv_data = conv_data_result['data']
-
+    print(conv_data)
+    logging.debug(conv_data)
     total_count = max(ret_data_result['total_count'], conv_data_result['total_count'])
     logging.debug(props)
     dimensions = props.get('dimentions',['Customer_ID'])
     metrics = props.get('metrics', 'FTDs')
     combined_data = merge_data(conv_data, ret_data)
     prepared_data = defaultdict(lambda: {metric: 0 for metric in metrics})
-    print(combined_data)
-    logging.debug(combined_data)
+    #print(conv_data)
+    #logging.debug(conv_data)
     for row in combined_data:
         key = tuple(row.get(dim) for dim in dimensions)
 
