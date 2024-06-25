@@ -155,7 +155,7 @@ async def get_builder_data_props():
 def login():
     auth = request.authorization
     if auth and auth.password == "password": #test password need to be change on pass_check method
-        token = jwt.encode({'user': auth.username, 'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=30)}, app.config['secret_key'])
+        token = jwt.encode({'user': auth.username, 'exp': datetime.utcnow() + timedelta(seconds=30)}, app.config['secret_key'])
         return f'<a href="http://localhost:5000/access?token={token}">Private link</a>'
     return make_response('Could not Verify', 401, {'WWW-Authenticate': 'Basic realm ="Login Required"'})
 
