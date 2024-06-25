@@ -1,10 +1,13 @@
-from flask import Flask, jsonify, Response, request
+from flask import Flask, jsonify, Response, request, make_response
 from variables import *
 from functions import *
 from api import *
 from operations import *
+from auth import *
 import socket
 import bson
+import jwt
+
 
 app = Flask(__name__)
 
@@ -135,6 +138,20 @@ async def get_builder_data_props():
     response.headers.add("Access-Control-Allow-Credentials", "true")
 
     return response
+
+@app.route("/login")
+def login():
+    auth = request.authorization
+    if auth and auth.password == "password": #test password need to be change on pass_check method
+        token = jwt.encode({'user': auth.username, 'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=30)}, app.config['secret_key'])
+        return f'<a href="http://localhost:5000/access?token={token}">Private link</a>'
+    return make_response('Could not Verify', 401, {'WWW-Authenticate': 'Basic realm ="Login Required"'})
+
+@app.route("/access")
+@token_required
+def access():
+    return jsonify({'message': 'valid jwt token'})
+
 
 
 asyncio.run(app.run(debug=True, host='0.0.0.0', port=5000))
