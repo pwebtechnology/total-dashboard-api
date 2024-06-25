@@ -12,6 +12,18 @@ import jwt
 app = Flask(__name__)
 
 
+def token_required(f):
+    def decorated(*args, **kwargs):
+        token = request.args.get('token')
+        if not token:
+            return jsonify({'error': 'token is missing'}), 403
+        try:
+            jwt.decode(token, app.config['secret_key'], algorithms="HS256")
+        except Exception as error:
+            return jsonify({'error': 'token is invalid or expired'})
+        return f(*args, **kwargs)
+    return decorated
+
 # get_total_affiliates_data
 @app.route('/total_data_no_params', methods=['GET', 'OPTIONS'])
 async def total_data_no_params():
