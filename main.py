@@ -3,7 +3,6 @@ from variables import *
 from functions import *
 from api import *
 from operations import *
-from auth import *
 import socket
 import bson
 import jwt
