@@ -445,7 +445,11 @@ payment_parametrs_builder = {
 }
 
 
-
+user_creds_params ={
+    'database': "Users",
+    'collection': "user_creds",
+    'query': {"$match": {"is_active": 1}}
+}
 
 
 
