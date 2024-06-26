@@ -189,8 +189,8 @@ async def get_builder_data_props():
     response.headers.add("Access-Control-Allow-Credentials", "true")
 
     return response
-
-@app.route("/login", methods=['GET'])
+'''
+@app.route("/login", methods=['GET', 'OPTIONS'])
 def login():
     print("here is logging method called")
     logging.debug("here is logging method called")
@@ -200,10 +200,53 @@ def login():
 
     if pass_check(data['username'], data['password']):
         token = create_access_token(identity=data['username'])
-        valid_user = ({'token': token})
-        response = Response(valid_user, content_type='application/json')
-        return response
+        return jsonify({'token': token}), 200
     return make_response('Could not verify', 401, {'WWW-Authenticate': 'Basic realm="Login Required"'})
+'''
+USERS = {
+    'first_user': {
+        'password': 'testPass1!'
+    }
+}
+@app.route("/login", methods=['POST'])
+def login():
+    logging.debug("here is logging method called")
+
+    # Retrieve headers and JSON data from the request
+    headers = request.headers
+    data = request.get_json()
+
+    # Check if the headers contain any specific authentication tokens or keys
+    auth_token = headers.get('Authorization')
+    if auth_token:
+        # Validate the token
+        if validate_token(auth_token):
+            # If token is valid, check username and password
+            if data and 'username' in data and 'password' in data:
+                username = data['username']
+                password = data['password']
+                if username in USERS and USERS[username]['password'] == password:
+                    # Generate JWT token
+                    token = create_access_token(identity=username)
+                    return jsonify({'token': token}), 200
+                else:
+                    return make_response('Invalid username or password', 401, {'WWW-Authenticate': 'Basic realm="Login Required"'})
+            else:
+                return jsonify({"error": "Username and password are required in JSON body"}), 400
+        else:
+            return jsonify({"error": "Invalid token"}), 401
+    else:
+        return jsonify({"error": "Authorization header is required"}), 401
+
+
+def validate_token(token):
+    try:
+        # Verify and decode the token
+        decoded_token = jwt.decode(token, app.config['JWT_SECRET_KEY'], algorithms=['HS256'])
+        # You may perform additional checks here, such as checking against a database or cache
+        return True
+    except:
+        return False
 
 @app.route("/logout", methods=['POST'])
 @jwt_required()
