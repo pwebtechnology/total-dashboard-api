@@ -7,11 +7,6 @@ from main import *
 from flask_login import LoginManager, UserMixin, login_user, logout_user
 
 #app.config['secret_key'] = "CD42F6C8314FDD9A8427CCE1495AE44F1C8B456E1039257A87BD0BA6275E4918" #generated from website - just for testing will change after tests passed
-'''
-class Users(UserMixin, collection):
-    username = collection.StringField(max_length=250, unique=True, required=True)
-    password = collection.StringField(max_length=250, required=True)
-'''
 
 
 async def password_check():
