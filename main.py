@@ -11,22 +11,25 @@ import flask_jwt_extended
 from flask_jwt_extended import (JWTManager, create_access_token, jwt_required, get_jwt_identity)
 from werkzeug.security import generate_password_hash, check_password_hash
 #from flask_mongoengine import MongoEngine
-import mongoengine as me
+from mongoengine import Document, StringField, connect
 
 app = Flask(__name__)
 
 app.config['SECRET_KEY'] = "CD42F6C8314FDD9A8427CCE1495AE44F1C8B456E1039257A87BD0BA6275E4918" #generated from website - just for testing will change after tests passed
 app.config["JWT_SECRET_KEY"] = app.config['SECRET_KEY']
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(minutes=10)
+mongo_uri = "mongodb://NikKimp:NikKimp@172.23.2.15:27017/?tls=false&authMechanism=DEFAULT"
+connect(host=mongo_uri)
 
 jwt = JWTManager(app)
 #db = MongoEngine()
 #db.init_app(app)
 
-class Users(me.Document):
-    username = me.StringField(max_length=250, unique=True, required=True)
-    password = me.StringField(max_length=250, required=True)
-    meta = {'collection': 'user_creds'}
+class Users(Document):
+    username = StringField(max_length=250, unique=True, required=True)
+    password = StringField(max_length=250, required=True)
+    meta = {'collection': 'user_creds',
+            'db': 'Users'}
 
 def token_required(f):
     def decorated(*args, **kwargs):
@@ -47,8 +50,8 @@ def get_user_pass(username):
     return None
 
 def pass_check(username, password):
-    user = get_user_pass(username)
-    if user and check_password_hash(user['password'], password):
+    stored_password = get_user_pass(username)
+    if stored_password and check_password_hash(stored_password, password):
         return True
     return False
 
