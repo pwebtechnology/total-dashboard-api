@@ -44,6 +44,7 @@ def token_required(f):
     return decorated
 
 def get_user_pass(username):
+    print(username)
     user = Users.objects(username=username).first()
     if user:
         return user.password
@@ -51,6 +52,7 @@ def get_user_pass(username):
 
 def pass_check(username, password):
     stored_password = get_user_pass(username)
+    print(stored_password)
     if stored_password and check_password_hash(stored_password, password):
         return True
     return False
@@ -188,6 +190,7 @@ async def get_builder_data_props():
 
 @app.route("/login", methods=['POST'])
 def login():
+    print("here is logging method called")
     data = request.get_json()
     if not data or not data.get('username') or not data.get('password'):
         return jsonify({"error": "Username and password are required"}), 400
