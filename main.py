@@ -211,33 +211,17 @@ USERS = {
 
 @app.route("/login", methods=['GET', 'POST'])
 def login():
-    logging.debug("here is logging method called")
-
-    # Retrieve headers and JSON data from the request
-    headers = request.headers
     data = request.get_json()
+    if not data or not data.get('username') or not data.get('password'):
+        return jsonify({"error": "Username and password are required"}), 400
 
-    # Check if the headers contain any specific authentication tokens or keys
-    auth_token = headers.get('Authorization')
-    if auth_token:
-        # Validate the token
-        if validate_token(auth_token):
-            # If token is valid, check username and password
-            if data and 'username' in data and 'password' in data:
-                username = data['username']
-                password = data['password']
-                if username in USERS and USERS[username]['password'] == password:
-                    # Generate JWT token
-                    token = create_access_token(identity=username)
-                    return jsonify({'token': token}), 200
-                else:
-                    return make_response('Invalid username or password', 401, {'WWW-Authenticate': 'Basic realm="Login Required"'})
-            else:
-                return jsonify({"error": "Username and password are required in JSON body"}), 400
-        else:
-            return jsonify({"error": "Invalid token"}), 401
-    else:
-        return jsonify({"error": "Authorization header is required"}), 401
+    username = data['username']
+    password = data['password']
+
+    if username in USERS and USERS[username]['password'] == password:
+        token = create_access_token(identity=username)
+        return jsonify({'token': token}), 200
+    return jsonify({"error": "Invalid username or password"}), 401
 
 
 def validate_token(token):
