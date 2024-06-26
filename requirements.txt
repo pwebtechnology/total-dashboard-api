@@ -10,4 +10,3 @@ Flask[async]==3.0.0
 Werkzeug==3.0.1
 PyJWT==2.8.0
 mongoengine==0.28.2
-flask_jwt_extended==4.6.0
