@@ -203,6 +203,11 @@ def login():
         return jsonify({'token': token}), 200
     return make_response('Could not verify', 401, {'WWW-Authenticate': 'Basic realm="Login Required"'})
 '''
+USERS = {
+    'first_user': {
+        'password': 'testPass1!'
+    }
+}
 @app.route("/login", methods=['POST'])
 def login():
     logging.debug("here is logging method called")
@@ -220,7 +225,7 @@ def login():
             if data and 'username' in data and 'password' in data:
                 username = data['username']
                 password = data['password']
-                if username in Users and Users[username]['password'] == password:
+                if username in USERS and USERS[username]['password'] == password:
                     # Generate JWT token
                     token = create_access_token(identity=username)
                     return jsonify({'token': token}), 200
