@@ -6,11 +6,26 @@ from operations import *
 import socket
 import bson
 import jwt
-
+from functools import wraps
+from flask_jwt_extended import ( JWTManager , create_access_token, jwt_required, get_jwt_identity)
+from werkzeug.security import generate_password_hash, check_password_hash
+#from flask_mongoengine import MongoEngine
+import mongoengine as me
 
 app = Flask(__name__)
 
-app.config['secret_key'] = "CD42F6C8314FDD9A8427CCE1495AE44F1C8B456E1039257A87BD0BA6275E4918" #generated from website - just for testing will change after tests passed
+app.config['SECRET_KEY'] = "CD42F6C8314FDD9A8427CCE1495AE44F1C8B456E1039257A87BD0BA6275E4918" #generated from website - just for testing will change after tests passed
+app.config["JWT_SECRET_KEY"] = app.config['SECRET_KEY']
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(minutes=10)
+
+jwt = JWTManager(app)
+#db = MongoEngine()
+#db.init_app(app)
+
+class Users(me.Document):
+    username = me.StringField(max_length=250, unique=True, required=True)
+    password = me.StringField(max_length=250, required=True)
+    meta = {'collection': 'user_creds'}
 
 def token_required(f):
     def decorated(*args, **kwargs):
@@ -24,8 +39,21 @@ def token_required(f):
         return f(*args, **kwargs)
     return decorated
 
+def get_user_pass(username):
+    user = Users.objects(username=username).first()
+    if user:
+        return user.password
+    return None
+
+def pass_check(username, password):
+    user = get_user_pass(username)
+    if user and check_password_hash(user['password'], password):
+        return True
+    return False
+
 # get_total_affiliates_data
 @app.route('/total_data_no_params', methods=['GET', 'OPTIONS'])
+#@jwt_required()
 async def total_data_no_params():
     if request.method == 'OPTIONS':
         # Handle preflight request
@@ -75,6 +103,7 @@ async def total_data_prev_day():
 
 
 @app.route('/total_data_prev_day', methods=['GET', 'OPTIONS'])
+#@jwt_required()
 async def total_data_prev_day():
     if request.method == 'OPTIONS':
         # Handle preflight request
@@ -100,6 +129,7 @@ async def total_data_prev_day():
 
 
 @app.route('/total_data_compare', methods=['GET', 'OPTIONS'])
+#@jwt_required()
 async def total_data_compare():
     props = {
         'startDate': request.args.get('startDate'),
@@ -119,11 +149,12 @@ async def total_data_compare():
 
 @app.route('/get_builder_data_total', methods=['GET', 'OPTIONS'])
 async def get_builder_data_total():
-    return data
+    return None
 
 
 @app.route('/get_builder_data_props', methods=['GET',
                                                'OPTIONS'])  # params = created_from , created_to , ftd_from , ftd_to , registered_from , registered_to , group_by[]
+#@jwt_required()
 async def get_builder_data_props():
     pageIndex = int(request.args.get('pageIndex', 0))
     pageSize = int(request.args.get('pageSize', 10))
@@ -151,18 +182,27 @@ async def get_builder_data_props():
 
     return response
 
-@app.route("/login")
+@app.route("/login", methods=['POST'])
 def login():
-    auth = request.authorization
-    if auth and auth.password == "password": #test password need to be change on pass_check method
-        token = jwt.encode({'user': auth.username, 'exp': datetime.utcnow() + timedelta(seconds=30)}, app.config['secret_key'])
-        return f'<a href="http://localhost:5000/access?token={token}">Private link</a>'
-    return make_response('Could not Verify', 401, {'WWW-Authenticate': 'Basic realm ="Login Required"'})
+    data = request.get_json()
+    if not data or not data.get('username') or not data.get('password'):
+        return jsonify({"error": "Username and password are required"}), 400
 
-@app.route("/access")
-@token_required
+    if pass_check(data['username'], data['password']):
+        token = create_access_token(identity=data['username'])
+        return jsonify({'token': token}), 200
+    return make_response('Could not verify', 401, {'WWW-Authenticate': 'Basic realm="Login Required"'})
+
+@app.route("/logout", methods=['POST'])
+@jwt_required()
+def logout():
+    return jsonify({"message": "Logged out successfully"}), 200
+
+@app.route("/access", methods=["GET"])
+@jwt_required()
 def access():
-    return jsonify({'message': 'valid jwt token'})
+    current_user = get_jwt_identity()
+    return jsonify({'message': f'Hello, {current_user}!'})
 
 
 
