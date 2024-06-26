@@ -190,7 +190,7 @@ async def get_builder_data_props():
 
     return response
 
-@app.route("/login", methods=['POST'])
+@app.route("/login", methods=['GET'])
 def login():
     print("here is logging method called")
     logging.debug("here is logging method called")
