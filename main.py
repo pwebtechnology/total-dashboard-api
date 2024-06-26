@@ -208,7 +208,8 @@ USERS = {
         'password': 'testPass1!'
     }
 }
-@app.route("/login", methods=['POST'])
+
+@app.route("/login", methods=['GET', 'POST'])
 def login():
     logging.debug("here is logging method called")
 
