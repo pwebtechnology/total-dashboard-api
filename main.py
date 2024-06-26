@@ -200,7 +200,7 @@ def login():
 
     if pass_check(data['username'], data['password']):
         token = create_access_token(identity=data['username'])
-        valid_user = ({'token': token,'code': 200})
+        valid_user = ({'token': token})
         response = Response(valid_user, content_type='application/json')
         return response
     return make_response('Could not verify', 401, {'WWW-Authenticate': 'Basic realm="Login Required"'})
