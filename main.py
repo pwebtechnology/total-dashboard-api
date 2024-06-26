@@ -7,6 +7,7 @@ import socket
 import bson
 import jwt
 from functools import wraps
+import flask_jwt_extended
 from flask_jwt_extended import (JWTManager, create_access_token, jwt_required, get_jwt_identity)
 from werkzeug.security import generate_password_hash, check_password_hash
 #from flask_mongoengine import MongoEngine
