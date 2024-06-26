@@ -2,6 +2,8 @@ import numpy as np
 import datetime
 from datetime import datetime
 from variables import *
+from pymongo.mongo_client import MongoClient
+from pymongo.server_api import ServerApi
 
 
 def is_date(date, start, end):
