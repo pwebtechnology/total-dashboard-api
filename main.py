@@ -307,7 +307,7 @@ def access():
                          "Content-Type, Authorization, Access-Control-Allow-Headers, Access-Control-Allow-Origin, Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers")
         response.headers.add("Access-Control-Allow-Credentials", "true")
     else :
-        response = jsonify({'error': 'Something went wrong, try to refresh the page or try again later', 'code': 401})
+        response = (({'error': 'Something went wrong, try to refresh the page or try again later', 'code': 401}))
     return response
 
 
