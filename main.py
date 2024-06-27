@@ -1,4 +1,5 @@
 from flask import Flask, jsonify, Response, request, make_response
+from flask_cors import CORS
 from variables import *
 from functions import *
 from api import *
@@ -15,7 +16,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from mongoengine import Document, StringField, connect
 
 app = Flask(__name__)
-
+CORS(app)
 app.config['SECRET_KEY'] = "CD42F6C8314FDD9A8427CCE1495AE44F1C8B456E1039257A87BD0BA6275E4918" #generated from website - just for testing will change after tests passed
 app.config["JWT_SECRET_KEY"] = app.config['SECRET_KEY']
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(minutes=10)
@@ -295,7 +296,7 @@ def logout():
     return response, 200
 
 
-@app.route("/access", methods=['GET','OPTIONS'])
+@app.route("/access", methods=['GET'])
 @jwt_required()
 def access():
     try:
