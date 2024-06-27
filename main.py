@@ -295,7 +295,7 @@ def logout():
     return response, 200
 
 
-@app.route("/access", methods=["GET"])
+@app.route("/access", methods=['GET','OPTIONS'])
 @jwt_required()
 def access():
     try:
