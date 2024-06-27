@@ -218,6 +218,7 @@ USERS = {
 @app.route("/login", methods=['GET', 'POST'])
 def login():
     data = request.get_json()
+    logging.debug("here is login started")
     if not data or not data.get('username') or not data.get('password'):
         response = jsonify({"error": "Username and password are required","code": "400"})
         response.headers.add("Access-Control-Allow-Origin", "*")
@@ -228,19 +229,19 @@ def login():
 
     username = data['username']
     password = data['password']
-
+    logging.debug("data readed correctly")
     if username in USERS and USERS[username]['password'] == password:
         access_token = create_access_token(identity=username)
         refresh_token = create_refresh_token(identity=username)
-
-        response = jsonify({'login':True, 'access_token': access_token})
+        logging.debug("tokens created")
+        response = jsonify({'login':True, 'access_token': access_token,'code': 200 })
         set_access_cookies(response, access_token)
         set_refresh_cookies(response, refresh_token)
         response.headers.add("Access-Control-Allow-Origin", "*")
         response.headers.add("Access-Control-Allow-Headers",
                              "Content-Type, Authorization, Access-Control-Allow-Headers, Access-Control-Allow-Origin, Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers")
         response.headers.add("Access-Control-Allow-Credentials", "true")
-        return response, 200
+        return response
     response = jsonify({"error": "Invalid username or password","code": "401"})
     response.headers.add("Access-Control-Allow-Origin", "*")
     response.headers.add("Access-Control-Allow-Headers",
