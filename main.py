@@ -211,7 +211,7 @@ def login():
 '''
 USERS = {
     'first_user': {
-        'password': 'testPass1!'
+        'password': '123'
     }
 }
 
