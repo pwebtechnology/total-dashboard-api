@@ -301,13 +301,13 @@ def access():
 
     current_user = get_jwt_identity()
     if current_user:
-        response = jsonify({'message': f'Hello, {current_user}!'})
+        response = make_response(jsonify({'message': f'Hello, {current_user}!'}))
         response.headers.add("Access-Control-Allow-Origin", "*")
         response.headers.add("Access-Control-Allow-Headers",
                          "Content-Type, Authorization, Access-Control-Allow-Headers, Access-Control-Allow-Origin, Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers")
         response.headers.add("Access-Control-Allow-Credentials", "true")
     else :
-        response = (({'error': 'Something went wrong, try to refresh the page or try again later', 'code': 401}))
+        response = make_response(({'error': 'Something went wrong, try to refresh the page or try again later', 'code': 401}))
     return response
 
 
