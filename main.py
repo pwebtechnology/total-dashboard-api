@@ -273,7 +273,9 @@ def logout():
 @jwt_required()
 def access():
     current_user = get_jwt_identity()
-    return jsonify({'message': f'Hello, {current_user}!'})
+    response = jsonify({'message': f'Hello, {current_user}!'})
+    response.headers.add("Access-Control-Allow-Origin", "*")
+    return response
 
 
 asyncio.run(app.run(debug=True, host='0.0.0.0', port=5000))
