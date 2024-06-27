@@ -298,14 +298,16 @@ def logout():
 @app.route("/access", methods=['GET','OPTIONS'])
 @jwt_required()
 def access():
-    try:
-        current_user = get_jwt_identity()
+
+    current_user = get_jwt_identity()
+    if current_user:
         response = jsonify({'message': f'Hello, {current_user}!'})
         response.headers.add("Access-Control-Allow-Origin", "*")
         response.headers.add("Access-Control-Allow-Headers",
                          "Content-Type, Authorization, Access-Control-Allow-Headers, Access-Control-Allow-Origin, Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers")
         response.headers.add("Access-Control-Allow-Credentials", "true")
-    except: response = jsonify({'error': 'Something went wrong, try to refresh the page or try again later', 'code': 403})
+    else :
+        response = jsonify({'error': 'Something went wrong, try to refresh the page or try again later', 'code': 401})
     return response
 
 
