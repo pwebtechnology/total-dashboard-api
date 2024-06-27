@@ -234,8 +234,8 @@ def login():
         access_token = create_access_token(identity=username)
         refresh_token = create_refresh_token(identity=username)
         logging.debug("tokens created")
-        response = jsonify({'login':True, 'access_token': access_token,'code': 200 })
-        set_access_cookies(response, access_token)
+        response = jsonify({'login':True, 'accessToken': access_token,'code': 200 })
+        #set_access_cookies(response, access_token)
         set_refresh_cookies(response, refresh_token)
         response.headers.add("Access-Control-Allow-Origin", "*")
         response.headers.add("Access-Control-Allow-Headers",
@@ -258,7 +258,7 @@ def refresh():
     set_access_cookies(response, access_token)
     response.headers.add("Access-Control-Allow-Origin", "*")
     response.headers.add("Access-Control-Allow-Headers",
-                         "Content-Type, Authorization, Access-Control-Allow-Headers, Access-Control-Allow-Origin, Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers")
+                         "Content-Type, Authorization, Access-Control-Allow-Headers, Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers")
     response.headers.add("Access-Control-Allow-Credentials", "true")
     return response, 200
 
@@ -269,7 +269,7 @@ def protected():
     response = jsonify(logged_in_as=current_user,code = 200)
     response.headers.add("Access-Control-Allow-Origin", "*")
     response.headers.add("Access-Control-Allow-Headers",
-                         "Content-Type, Authorization, Access-Control-Allow-Headers, Access-Control-Allow-Origin, Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers")
+                         "Content-Type, Authorization, Access-Control-Allow-Headers, Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers")
     response.headers.add("Access-Control-Allow-Credentials", "true")
     return response
 
