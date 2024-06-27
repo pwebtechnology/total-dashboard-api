@@ -215,7 +215,7 @@ USERS = {
 }
 
 
-@app.route("/login", methods=['GET', 'POST'])
+@app.route("/login", methods=['POST'])
 def login():
     data = request.get_json()
     logging.debug("here is login started")
@@ -227,14 +227,14 @@ def login():
         response.headers.add("Access-Control-Allow-Credentials", "true")
         return response
 
-    username = data['username']
-    password = data['password']
+    username = request.args.get('username')
+    password = request.args.get('password')
     logging.debug("data readed correctly")
     if username in USERS and USERS[username]['password'] == password:
         access_token = create_access_token(identity=username)
         refresh_token = create_refresh_token(identity=username)
         logging.debug("tokens created")
-        response = jsonify({'login':True, 'accessToken': access_token,'code': 200 })
+        response = make_response(jsonify({'login':True, 'accessToken': access_token,'code': 200 },200))
         #set_access_cookies(response, access_token)
         set_refresh_cookies(response, refresh_token)
         response.headers.add("Access-Control-Allow-Origin", "*")
@@ -300,14 +300,14 @@ def logout():
 def access():
 
     current_user = get_jwt_identity()
-    if current_user:
-        response = make_response(jsonify({'message': f'Hello, {current_user}!'}))
-        response.headers.add("Access-Control-Allow-Origin", "*")
-        response.headers.add("Access-Control-Allow-Headers",
+    #if current_user:
+    response = make_response(jsonify({'message': f'Hello, {current_user}!'}))
+    response.headers.add("Access-Control-Allow-Origin", "*")
+    response.headers.add("Access-Control-Allow-Headers",
                          "Content-Type, Authorization, Access-Control-Allow-Headers, Access-Control-Allow-Origin, Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers")
-        response.headers.add("Access-Control-Allow-Credentials", "true")
-    else :
-        response = make_response(({'error': 'Something went wrong, try to refresh the page or try again later', 'code': 401}))
+    response.headers.add("Access-Control-Allow-Credentials", "true")
+    #else :
+       # response = make_response(({'error': 'Something went wrong, try to refresh the page or try again later', 'code': 401}))
     return response
 
 
