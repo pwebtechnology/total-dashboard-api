@@ -234,8 +234,8 @@ def login():
         access_token = create_access_token(identity=username)
         refresh_token = create_refresh_token(identity=username)
         logging.debug("tokens created")
-        response = make_response(jsonify({'login':True, 'accessToken': access_token,'code': 200 },200))
-        #set_access_cookies(response, access_token)
+        response = jsonify({'login':True, 'accessToken': access_token,'code': 200 })
+        set_access_cookies(response, access_token)
         set_refresh_cookies(response, refresh_token)
         response.headers.add("Access-Control-Allow-Origin", "*")
         response.headers.add("Access-Control-Allow-Headers",
