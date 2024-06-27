@@ -666,10 +666,10 @@ async def get_retention_data_prev_day():
                 preparedData[affilate]['Total_WD'] += row['Ticket_Amount_USD']
                 preparedData[affilate]['Total_NET'] -= row['Ticket_Amount_USD']
                 preparedData[affilate]['count_of_withdrawal'] += 1
-
-
-        if (Trader_Ftd_Date < previous_day_date):
-            preparedData[affilate]['FTDs'] += row['Ticket_Is_ftd']
+        if Trader_Ftd_Date is not None and isinstance(Trader_Ftd_Date, datetime.datetime):
+            if (Trader_Ftd_Date < previous_day_date):
+                preparedData[affilate]['FTDs'] += row['Ticket_Is_ftd']
+        else: pass
 
     for affilate, affilateData in preparedData.items():
         result[affilate] = {}
