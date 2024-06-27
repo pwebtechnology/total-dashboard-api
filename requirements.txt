@@ -12,3 +12,4 @@ PyJWT==2.8.0
 mongoengine==0.28.2
 flask_jwt_extended==4.6.0
 requests==2.32.3
+flask-cors==4.0.1
