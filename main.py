@@ -220,7 +220,7 @@ def login():
     data = request.get_json()
     logging.debug("here is login started")
     if not data or not data.get('username') or not data.get('password'):
-        response = jsonify({"error": "Username and password are required","code": "400"})
+        response = jsonify({'error': 'Username and password are required','code': 400})
         response.headers.add("Access-Control-Allow-Origin", "*")
         response.headers.add("Access-Control-Allow-Headers",
                              "Content-Type, Authorization, Access-Control-Allow-Headers, Access-Control-Allow-Origin, Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers")
@@ -242,7 +242,7 @@ def login():
                              "Content-Type, Authorization, Access-Control-Allow-Headers, Access-Control-Allow-Origin, Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers")
         response.headers.add("Access-Control-Allow-Credentials", "true")
         return response
-    response = jsonify({"error": "Invalid username or password","code": "401"})
+    response = jsonify({'error': 'Invalid username or password','code': 401})
     response.headers.add("Access-Control-Allow-Origin", "*")
     response.headers.add("Access-Control-Allow-Headers",
                          "Content-Type, Authorization, Access-Control-Allow-Headers, Access-Control-Allow-Origin, Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers")
@@ -298,12 +298,14 @@ def logout():
 @app.route("/access", methods=["GET"])
 @jwt_required()
 def access():
-    current_user = get_jwt_identity()
-    response = jsonify({'message': f'Hello, {current_user}!'})
-    response.headers.add("Access-Control-Allow-Origin", "*")
-    response.headers.add("Access-Control-Allow-Headers",
+    try:
+        current_user = get_jwt_identity()
+        response = jsonify({'message': f'Hello, {current_user}!'})
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        response.headers.add("Access-Control-Allow-Headers",
                          "Content-Type, Authorization, Access-Control-Allow-Headers, Access-Control-Allow-Origin, Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers")
-    response.headers.add("Access-Control-Allow-Credentials", "true")
+        response.headers.add("Access-Control-Allow-Credentials", "true")
+    except: response = jsonify({'error': 'Something went wrong, try to refresh the page or try again later', 'code': 403})
     return response
 
 
