@@ -219,7 +219,9 @@ USERS = {
 def login():
     data = request.get_json()
     if not data or not data.get('username') or not data.get('password'):
-        return jsonify({"error": "Username and password are required"}), 400
+        response = jsonify({"error": "Username and password are required","code": "400"})
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        return response
 
     username = data['username']
     password = data['password']
@@ -228,12 +230,14 @@ def login():
         access_token = create_access_token(identity=username)
         refresh_token = create_refresh_token(identity=username)
 
-        response = jsonify({'login':True})
+        response = jsonify({'login':True, 'access_token': access_token})
         set_access_cookies(response, access_token)
         set_refresh_cookies(response, refresh_token)
-
+        response.headers.add("Access-Control-Allow-Origin", "*")
         return response, 200
-    return jsonify({"error": "Invalid username or password"}), 401
+    response = jsonify({"error": "Invalid username or password","code": "401"})
+    response.headers.add("Access-Control-Allow-Origin", "*")
+    return response
 @app.route("/refresh", methods=['POST'])
 @jwt_required(refresh=True)
 def refresh():
@@ -242,14 +246,16 @@ def refresh():
 
     response = jsonify({'refresh': True})
     set_access_cookies(response, access_token)
-
+    response.headers.add("Access-Control-Allow-Origin", "*")
     return response, 200
 
 @app.route("/protected", methods=['GET'])
 @jwt_required()
 def protected():
     current_user = get_jwt_identity()
-    return jsonify(logged_in_as=current_user), 200
+    response = jsonify(logged_in_as=current_user,code = 200)
+    response.headers.add("Access-Control-Allow-Origin", "*")
+    return response
 
 
 def validate_token(token):
@@ -266,6 +272,7 @@ def validate_token(token):
 def logout():
     response = jsonify({'logout': True})
     unset_jwt_cookies(response)
+    response.headers.add("Access-Control-Allow-Origin", "*")
     return response, 200
 
 
