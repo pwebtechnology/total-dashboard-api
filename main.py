@@ -253,14 +253,16 @@ def login():
 @jwt_required(refresh=True)
 def refresh():
     identity = get_jwt_identity()
-    access_token = create_access_token(identity=identity)
+    if not identity:
+        access_token = create_access_token(identity=identity)
 
-    response = jsonify({'refresh': True,'accessToken': access_token})
-    set_access_cookies(response, access_token)
-    response.headers.add("Access-Control-Allow-Origin", "*")
-    response.headers.add("Access-Control-Allow-Headers",
+        response = jsonify({'refresh': True,'accessToken': access_token})
+        set_access_cookies(response, access_token)
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        response.headers.add("Access-Control-Allow-Headers",
                          "Content-Type, Authorization, Access-Control-Allow-Headers, Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers")
-    response.headers.add("Access-Control-Allow-Credentials", "true")
+        response.headers.add("Access-Control-Allow-Credentials", "true")
+    else: return jsonify({'error': 'failed to identify your connection, log in again please'}), 403
     return response, 200
 
 @app.route("/protected", methods=['GET'])
