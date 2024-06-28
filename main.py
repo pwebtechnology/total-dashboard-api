@@ -10,7 +10,7 @@ import jwt
 from functools import wraps
 import flask_jwt_extended
 from flask_jwt_extended import (JWTManager, create_access_token, jwt_required, get_jwt_identity, create_refresh_token,
-                                set_access_cookies, set_refresh_cookies, unset_jwt_cookies)
+                                set_access_cookies,  set_refresh_cookies, unset_jwt_cookies, get_jwt)
 from werkzeug.security import generate_password_hash, check_password_hash
 #from flask_mongoengine import MongoEngine
 from mongoengine import Document, StringField, connect
@@ -18,12 +18,12 @@ from mongoengine import Document, StringField, connect
 app = Flask(__name__)
 CORS(app)
 app.config['SECRET_KEY'] = "CD42F6C8314FDD9A8427CCE1495AE44F1C8B456E1039257A87BD0BA6275E4918" #generated from website - just for testing will change after tests passed
-app.config["JWT_SECRET_KEY"] = app.config['SECRET_KEY']
-app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(minutes=10)
-app.config['JWT_TOKEN_LOCATION'] = ['headers', 'cookies']
+app.config['JWT_SECRET_KEY'] = app.config['SECRET_KEY']
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(minutes=10)
+app.config['JWT_TOKEN_LOCATION'] = ['cookies']
 app.config['JWT_ACCESS_COOKIE_PATH'] = '/'
 app.config['JWT_REFRESH_COOKIE_PATH'] = '/refresh'
-app.config['JWT_COOKIE_CSRF_PROTECT'] = True
+app.config['JWT_COOKIE_CSRF_PROTECT'] = False
 mongo_uri = "mongodb://NikKimp:NikKimp@172.23.2.15:27017/?tls=false&authMechanism=DEFAULT"
 connect(host=mongo_uri)
 
@@ -249,13 +249,13 @@ def login():
                          "Content-Type, Authorization, Access-Control-Allow-Headers, Access-Control-Allow-Origin, Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers")
     response.headers.add("Access-Control-Allow-Credentials", "true")
     return response
-@app.route("/refresh", methods=['POST'])
+@app.route('/refresh', methods=['POST'])
 @jwt_required(refresh=True)
 def refresh():
     identity = get_jwt_identity()
     access_token = create_access_token(identity=identity)
 
-    response = jsonify({'refresh': True})
+    response = jsonify({'refresh': True,'accessToken': access_token})
     set_access_cookies(response, access_token)
     response.headers.add("Access-Control-Allow-Origin", "*")
     response.headers.add("Access-Control-Allow-Headers",
