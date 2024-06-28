@@ -10,7 +10,7 @@ import jwt
 from functools import wraps
 import flask_jwt_extended
 from flask_jwt_extended import (JWTManager, create_access_token, jwt_required, get_jwt_identity, create_refresh_token,
-                                set_access_cookies,  set_refresh_cookies, unset_jwt_cookies, get_jwt)
+                                set_access_cookies,  set_refresh_cookies, unset_jwt_cookies, get_jwt, decode_token)
 from werkzeug.security import generate_password_hash, check_password_hash
 #from flask_mongoengine import MongoEngine
 from mongoengine import Document, StringField, connect
@@ -250,22 +250,32 @@ def login():
     response.headers.add("Access-Control-Allow-Credentials", "true")
     return response
 @app.route('/refresh', methods=['POST'])
-@jwt_required(refresh=True)
 def refresh():
     try:
-        identity = get_jwt_identity()
-        if not identity:
-            access_token = create_access_token(identity=identity)
+        refresh_token = request.cookies.get('refresh_token_cookie')
+        if not refresh_token:
+            return jsonify({'error': 'Refresh token is missing'}), 403
 
-            response = jsonify({'refresh': True,'accessToken': access_token})
-            set_access_cookies(response, access_token)
-            response.headers.add("Access-Control-Allow-Origin", "*")
-            response.headers.add("Access-Control-Allow-Headers",
-                         "Content-Type, Authorization, Access-Control-Allow-Headers, Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers")
-            response.headers.add("Access-Control-Allow-Credentials", "true")
-        else: return jsonify({'error': 'failed to identify your connection, log in again please'}), 403
-    except Exception as error: return jsonify({'error': 'failed to identify your connection, log in again please'}), 403
-    return response, 200
+        decoded_token = decode_token(refresh_token)
+        identity = decoded_token.get('sub')
+
+        if not identity:
+            return jsonify({'error': 'Failed to identify your connection, log in again please'}), 403
+
+        access_token = create_access_token(identity=identity)
+        response = jsonify({'refresh': True, 'accessToken': access_token})
+        set_access_cookies(response, access_token)
+
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        response.headers.add("Access-Control-Allow-Headers",
+                             "Content-Type, Authorization, Access-Control-Allow-Headers, Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers")
+        response.headers.add("Access-Control-Allow-Credentials", "true")
+
+        return response, 200
+
+    except Exception as error:
+        logging.error(f"Error during token refresh: {error}")
+        return jsonify({'error': 'Failed to identify your connection, log in again please'}), 403
 
 @app.route("/protected", methods=['GET'])
 @jwt_required()
