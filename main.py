@@ -239,17 +239,15 @@ def login():
         refresh_token = create_refresh_token(identity={'username': username, 'password': password})
         print("tokens created")
         response = make_response(jsonify({'accessToken': access_token, 'code': 200, 'login': True}))
-        #response.set_cookie('refresh_token_cookie', refresh_token, domain='127.0.0.1:5001')
-        set_access_cookies(response, access_token)
-        set_refresh_cookies(response, refresh_token)
+        response.set_cookie('refresh_token_cookie', refresh_token)
+        #set_access_cookies(response, access_token)
+        #set_refresh_cookies(response, refresh_token)
         print(f"Refresh Response: {response.get_data(as_text=True)}")
         print(f"Set-Cookie Header: {response.headers.get('Set-Cookie')}")
         response.headers.add("Access-Control-Allow-Origin", "*")
-        response.headers.add("Access-Control-Allow-Credentials", "true")
         return response, 200
     response = jsonify({'error': 'Invalid username or password','code': 401})
     response.headers.add("Access-Control-Allow-Origin", "*")
-    response.headers.add("Access-Control-Allow-Credentials", "true")
     return response, 401
 
 
