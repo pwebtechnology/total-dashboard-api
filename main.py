@@ -256,8 +256,8 @@ def refresh():
         refresh_token = request.cookies.get('refresh_token_cookie')
         print("here is refresh token:", refresh_token)
         logging.debug(f"here is refresh token: {refresh_token}")
-        if not refresh_token:
-            return jsonify({'error': 'Refresh token is missing'}), 403
+        #if not refresh_token:
+         #   return jsonify({'error': 'Refresh token is missing'}), 403
 
         decoded_token = decode_token(refresh_token)
         print(decoded_token)
