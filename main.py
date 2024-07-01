@@ -255,14 +255,41 @@ def login():
 @app.route('/refresh', methods=['POST'])
 @jwt_required(refresh=True)
 def refresh():
-    # Create the new access token
-    current_user = get_jwt_identity()
-    access_token = create_access_token(identity=current_user)
+    try:
+        refresh_token = request.cookies.get('refresh_token_cookie')
+        logging.debug(f"Refresh token from cookie: {refresh_token}")
 
-    # Set the JWT access cookie in the response
-    resp = jsonify({'refresh': True})
-    set_access_cookies(resp, access_token)
-    return resp, 200
+        if not refresh_token:
+            logging.debug("Missing refresh token")
+            return jsonify({'error': 'Refresh token is missing'}), 403
+
+        decoded_token = decode_token(refresh_token)
+        logging.debug(f"Decoded token: {decoded_token}")
+
+        identity = decoded_token.get('sub')
+        logging.debug(f"Identity from decoded token: {identity}")
+
+        if not identity:
+            logging.debug("Failed to identify the connection")
+            return jsonify({'error': 'Failed to identify your connection, log in again please'}), 403
+
+        access_token = create_access_token(identity=identity)
+        response = jsonify({'refresh': True, 'accessToken': access_token})
+        set_access_cookies(response, access_token)
+
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        response.headers.add("Access-Control-Allow-Headers",
+                             "Content-Type, Authorization, Access-Control-Allow-Headers, Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers")
+        response.headers.add("Access-Control-Allow-Credentials", "true")
+
+        logging.debug("Refresh successful")
+        return response, 200
+
+    except Exception as error:
+        logging.error(f"Error during token refresh: {error}")
+        return jsonify({'error': 'Failed to identify your connection, log in again please'}), 403
+
+
 '''
 def refresh():
     try:
