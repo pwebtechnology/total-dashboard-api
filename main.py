@@ -255,7 +255,7 @@ def login():
 
 
 @app.route('/refresh', methods=['POST'])
-@jwt_required(refresh=True)
+#@jwt_required(refresh=True)
 def refresh():
     refresh_token = request.cookies.get('refresh_token_cookie')
 
