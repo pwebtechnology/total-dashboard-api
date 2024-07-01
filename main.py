@@ -21,7 +21,7 @@ CORS(app)
 app.config['SECRET_KEY'] = "CD42F6C8314FDD9A8427CCE1495AE44F1C8B456E1039257A87BD0BA6275E4918" #generated from website - just for testing will change after tests passed
 app.config['JWT_SECRET_KEY'] = app.config['SECRET_KEY']
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(minutes=10)
-app.config['JWT_TOKEN_LOCATION'] = ['header','cookies']
+app.config['JWT_TOKEN_LOCATION'] = ['headers','cookies']
 app.config['JWT_CSRF_IN_COOKIES'] = False
 app.config['JWT_ACCESS_COOKIE_PATH'] = '/'
 app.config['JWT_REFRESH_COOKIE_PATH'] = '/refresh'
