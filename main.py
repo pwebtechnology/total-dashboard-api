@@ -14,6 +14,7 @@ from flask_jwt_extended import (JWTManager, create_access_token, jwt_required, g
 from werkzeug.security import generate_password_hash, check_password_hash
 #from flask_mongoengine import MongoEngine
 from mongoengine import Document, StringField, connect
+import os
 
 app = Flask(__name__)
 CORS(app)
@@ -233,10 +234,11 @@ def login():
     password = data['password']
     logging.debug("data readed correctly")
     if username in USERS and USERS[username]['password'] == password:
-        access_token = create_access_token(identity=username)
-        refresh_token = create_refresh_token(identity=username)
+        access_token = create_access_token(identity={'username': username, 'password': password})
+        refresh_token = create_refresh_token(identity={'username': username, 'password': password})
         logging.debug("tokens created")
         response = jsonify({'login':True, 'accessToken': access_token,'code': 200 })
+        response.set_cookie('refresh_token_cookie', refresh_token, httponly=True)
         set_access_cookies(response, access_token)
         set_refresh_cookies(response, refresh_token)
         response.headers.add("Access-Control-Allow-Origin", "*")
@@ -255,21 +257,18 @@ def login():
 @app.route('/refresh', methods=['POST'])
 @jwt_required(refresh=True)
 def refresh():
-    refresh_token = request.cookies.get('jwt')
+    refresh_token = request.cookies.get('refresh_token_cookie')
 
     if refresh_token:
         try:
             # Decode the refresh token
-            decoded_token = decode_token(refresh_token)
+            decoded_token = jwt.decode(refresh_token, secret_key=app.config['SECRET_KEY'])
 
             # You should verify the token and get user credentials if needed
-            user_credentials = get_jwt_identity()  # Or retrieve from your database
+            user_identity = decoded_token['identity']  # Or retrieve from your database
 
             # Generate a new access token
-            access_token = create_access_token(
-                identity={'username': user_credentials['username'], 'password': user_credentials['password']},
-                expires_delta=False,  # Token expiry time, set to '10m'
-            )
+            access_token = create_access_token(identity=user_identity, expires_delta=False)  # Token expiry time
 
             return jsonify(accessToken=access_token), 200
 
