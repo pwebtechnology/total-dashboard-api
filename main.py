@@ -239,7 +239,7 @@ def login():
         refresh_token = create_refresh_token(identity={'username': username, 'password': password})
         print("tokens created")
         response = make_response(jsonify({'accessToken': access_token, 'code': 200, 'login': True}))
-        response.set_cookie('refresh_token_cookie', refresh_token)
+        response.set_cookie('refresh_token_cookie', refresh_token, httponly=True, domain='127.0.0.1', path='/', max_age=None, expires=None, samesite=None)
         #set_access_cookies(response, access_token)
         #set_refresh_cookies(response, refresh_token)
         print(f"Refresh Response: {response.get_data(as_text=True)}")
