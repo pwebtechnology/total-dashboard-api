@@ -252,8 +252,33 @@ def login():
     return response, 401
 
 
-@app.route('/refresh', methods=['GET'])
+@app.route('/refresh', methods=['POST'])
 @jwt_required(refresh=True)
+def refresh():
+    refresh_token = request.cookies.get('jwt')
+
+    if refresh_token:
+        try:
+            # Decode the refresh token
+            decoded_token = decode_token(refresh_token)
+
+            # You should verify the token and get user credentials if needed
+            user_credentials = get_jwt_identity()  # Or retrieve from your database
+
+            # Generate a new access token
+            access_token = create_access_token(
+                identity={'username': user_credentials['username'], 'password': user_credentials['password']},
+                expires_delta=False,  # Token expiry time, set to '10m'
+            )
+
+            return jsonify(accessToken=access_token), 200
+
+        except Exception as e:
+            # In case of any error (e.g., token invalid)
+            return jsonify(message='Unauthorized'), 406
+
+    return jsonify(message='Unauthorized'), 406
+'''
 def refresh():
     try:
         #cookies_data = request.cookies.get()
@@ -286,6 +311,8 @@ def refresh():
     except Exception as error:
         logging.error(f"Error during token refresh: {error}")
         return jsonify({'error': 'Failed to identify your connection, log in again please'}), 403
+'''
+
 
 
 
