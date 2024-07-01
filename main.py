@@ -21,6 +21,7 @@ app.config['SECRET_KEY'] = "CD42F6C8314FDD9A8427CCE1495AE44F1C8B456E1039257A87BD
 app.config['JWT_SECRET_KEY'] = app.config['SECRET_KEY']
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(minutes=10)
 app.config['JWT_TOKEN_LOCATION'] = ['cookies']
+app.config['JWT_CSRF_IN_COOKIES'] = True
 app.config['JWT_ACCESS_COOKIE_PATH'] = '/'
 app.config['JWT_REFRESH_COOKIE_PATH'] = '/refresh'
 app.config['JWT_COOKIE_CSRF_PROTECT'] = False
@@ -249,7 +250,20 @@ def login():
                          "Content-Type, Authorization, Access-Control-Allow-Headers, Access-Control-Allow-Origin, Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers")
     response.headers.add("Access-Control-Allow-Credentials", "true")
     return response, 401
+
+
 @app.route('/refresh', methods=['POST'])
+@jwt_required(refresh=True)
+def refresh():
+    # Create the new access token
+    current_user = get_jwt_identity()
+    access_token = create_access_token(identity=current_user)
+
+    # Set the JWT access cookie in the response
+    resp = jsonify({'refresh': True})
+    set_access_cookies(resp, access_token)
+    return resp, 200
+'''
 def refresh():
     try:
         #cookies_data = request.cookies.get()
@@ -282,6 +296,8 @@ def refresh():
     except Exception as error:
         logging.error(f"Error during token refresh: {error}")
         return jsonify({'error': 'Failed to identify your connection, log in again please'}), 403
+'''
+
 
 @app.route("/protected", methods=['GET'])
 @jwt_required()
