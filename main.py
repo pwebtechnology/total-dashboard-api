@@ -226,7 +226,7 @@ def login():
         response.headers.add("Access-Control-Allow-Headers",
                              "Content-Type, Authorization, Access-Control-Allow-Headers, Access-Control-Allow-Origin, Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers")
         response.headers.add("Access-Control-Allow-Credentials", "true")
-        return response
+        return response, 400
 
     username = data['username']
     password = data['password']
@@ -242,13 +242,13 @@ def login():
         response.headers.add("Access-Control-Allow-Headers",
                              "Content-Type, Authorization, Access-Control-Allow-Headers, Access-Control-Allow-Origin, Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers")
         response.headers.add("Access-Control-Allow-Credentials", "true")
-        return response
+        return response, 200
     response = jsonify({'error': 'Invalid username or password','code': 401})
     response.headers.add("Access-Control-Allow-Origin", "*")
     response.headers.add("Access-Control-Allow-Headers",
                          "Content-Type, Authorization, Access-Control-Allow-Headers, Access-Control-Allow-Origin, Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers")
     response.headers.add("Access-Control-Allow-Credentials", "true")
-    return response
+    return response, 401
 @app.route('/refresh', methods=['POST'])
 def refresh():
     try:
