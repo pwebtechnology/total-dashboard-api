@@ -21,8 +21,8 @@ CORS(app)
 app.config['SECRET_KEY'] = "CD42F6C8314FDD9A8427CCE1495AE44F1C8B456E1039257A87BD0BA6275E4918" #generated from website - just for testing will change after tests passed
 app.config['JWT_SECRET_KEY'] = app.config['SECRET_KEY']
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(minutes=10)
-app.config['JWT_TOKEN_LOCATION'] = ['cookies']
-app.config['JWT_CSRF_IN_COOKIES'] = True
+app.config['JWT_TOKEN_LOCATION'] = ['header','cookies']
+app.config['JWT_CSRF_IN_COOKIES'] = False
 app.config['JWT_ACCESS_COOKIE_PATH'] = '/'
 app.config['JWT_REFRESH_COOKIE_PATH'] = '/refresh'
 app.config['JWT_COOKIE_CSRF_PROTECT'] = False
@@ -170,7 +170,7 @@ async def get_builder_data_total():
 
 @app.route('/get_builder_data_props', methods=['GET',
                                                'OPTIONS'])  # params = created_from , created_to , ftd_from , ftd_to , registered_from , registered_to , group_by[]
-#@jwt_required()
+@jwt_required()
 async def get_builder_data_props():
     pageIndex = int(request.args.get('pageIndex', 0))
     pageSize = int(request.args.get('pageSize', 10))
@@ -262,7 +262,7 @@ def refresh():
     if refresh_token:
         try:
             # Decode the refresh token
-            decoded_token = jwt.decode(refresh_token, secret_key=app.config['SECRET_KEY'])
+            decoded_token = jwt.decode(refresh_token, secret_key="CD42F6C8314FDD9A8427CCE1495AE44F1C8B456E1039257A87BD0BA6275E4918")
 
             # You should verify the token and get user credentials if needed
             user_identity = decoded_token['identity']  # Or retrieve from your database
