@@ -252,7 +252,8 @@ def login():
 @app.route('/refresh', methods=['POST'])
 def refresh():
     try:
-        refresh_token = request.cookies.get('refresh_token_cookie')
+        #cookies_data = request.cookies.get()
+        refresh_token = request.cookies.get('refresh_token')
         print("here is refresh token:", refresh_token)
         logging.debug("here is refresh token:", refresh_token)
         if not refresh_token:
