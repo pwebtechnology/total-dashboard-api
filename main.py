@@ -238,7 +238,7 @@ def login():
         refresh_token = create_refresh_token(identity={'username': username, 'password': password})
         logging.debug("tokens created")
         response = jsonify({'login':True, 'accessToken': access_token,'code': 200 })
-        response.set_cookie('refresh_token_cookie', refresh_token, httponly=True)
+        response.set_cookie('refresh_token', refresh_token, httponly=True)
         set_access_cookies(response, access_token)
         set_refresh_cookies(response, refresh_token)
         response.headers.add("Access-Control-Allow-Origin", "*")
@@ -257,7 +257,7 @@ def login():
 @app.route('/refresh', methods=['POST'])
 #@jwt_required(refresh=True)
 def refresh():
-    refresh_token = request.cookies.get('refresh_token_cookie')
+    refresh_token = request.cookies.get('refresh_token')
 
     if refresh_token:
         try:
