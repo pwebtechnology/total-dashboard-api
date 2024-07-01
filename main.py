@@ -253,9 +253,9 @@ def login():
 def refresh():
     try:
         #cookies_data = request.cookies.get()
-        refresh_token = request.cookies.get('refresh_token')
+        refresh_token = request.cookies.get('refresh_token_cookie')
         print("here is refresh token:", refresh_token)
-        logging.debug("here is refresh token:", refresh_token)
+        logging.debug(f"here is refresh token: {refresh_token}")
         if not refresh_token:
             return jsonify({'error': 'Refresh token is missing'}), 403
 
@@ -263,6 +263,7 @@ def refresh():
         print(decoded_token)
         logging.debug(decoded_token)
         identity = decoded_token.get('sub')
+        logging.debug(f"Decoded token identity: {identity}")
 
         if not identity:
             return jsonify({'error': 'Failed to identify your connection, log in again please'}), 403
