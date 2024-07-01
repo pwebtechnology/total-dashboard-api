@@ -227,8 +227,6 @@ def login():
     logging.debug("here is login started")
     if not data or not data.get('username') or not data.get('password'):
         response = jsonify({'error': 'Username and password are required','code': 400})
-        response.headers.add("Access-Control-Allow-Origin", "*")
-        response.headers.add("Access-Control-Allow-Credentials", "true")
         return response, 400
 
     username = data['username']
@@ -239,15 +237,13 @@ def login():
         refresh_token = create_refresh_token(identity={'username': username, 'password': password})
         print("tokens created")
         response = make_response(jsonify({'accessToken': access_token, 'code': 200, 'login': True}))
-        response.set_cookie('refresh_token_cookie', refresh_token, httponly=True, domain='127.0.0.1', path='/', max_age=None, expires=None, samesite=None)
+        response.set_cookie('refresh_token_cookie', refresh_token, httponly=True, path='/', max_age=None, expires=None, samesite=None)
         #set_access_cookies(response, access_token)
         #set_refresh_cookies(response, refresh_token)
         print(f"Refresh Response: {response.get_data(as_text=True)}")
         print(f"Set-Cookie Header: {response.headers.get('Set-Cookie')}")
-        response.headers.add("Access-Control-Allow-Origin", "*")
         return response, 200
     response = jsonify({'error': 'Invalid username or password','code': 401})
-    response.headers.add("Access-Control-Allow-Origin", "*")
     return response, 401
 
 
