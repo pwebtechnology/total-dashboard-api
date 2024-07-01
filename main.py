@@ -17,19 +17,22 @@ from mongoengine import Document, StringField, connect
 import os
 
 app = Flask(__name__)
-CORS(app)
+jwt_manager = JWTManager(app)
+CORS(app, supports_credentials=True)
 app.config['SECRET_KEY'] = "CD42F6C8314FDD9A8427CCE1495AE44F1C8B456E1039257A87BD0BA6275E4918" #generated from website - just for testing will change after tests passed
 app.config['JWT_SECRET_KEY'] = app.config['SECRET_KEY']
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(minutes=10)
 app.config['JWT_TOKEN_LOCATION'] = ['cookies']
 app.config['JWT_CSRF_IN_COOKIES'] = False
-app.config['JWT_ACCESS_COOKIE_PATH'] = '/'
+app.config['JWT_ACCESS_COOKIE_PATH'] = '/refresh'
 app.config['JWT_REFRESH_COOKIE_PATH'] = '/refresh'
 app.config['JWT_COOKIE_CSRF_PROTECT'] = False
+app.config['JWT_SECRET_KEY'] = os.getenv('ACCESS_TOKEN_SECRET')
+app.config['JWT_REFRESH_SECRET_KEY'] = os.getenv('REFRESH_TOKEN_SECRET')
 mongo_uri = "mongodb://NikKimp:NikKimp@172.23.2.15:27017/?tls=false&authMechanism=DEFAULT"
 connect(host=mongo_uri)
 
-jwt = JWTManager(app)
+
 #db = MongoEngine()
 #db.init_app(app)
 
@@ -225,8 +228,6 @@ def login():
     if not data or not data.get('username') or not data.get('password'):
         response = jsonify({'error': 'Username and password are required','code': 400})
         response.headers.add("Access-Control-Allow-Origin", "*")
-        response.headers.add("Access-Control-Allow-Headers",
-                             "Content-Type, Authorization, Access-Control-Allow-Headers, Access-Control-Allow-Origin, Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers")
         response.headers.add("Access-Control-Allow-Credentials", "true")
         return response, 400
 
@@ -236,20 +237,18 @@ def login():
     if username in USERS and USERS[username]['password'] == password:
         access_token = create_access_token(identity={'username': username, 'password': password})
         refresh_token = create_refresh_token(identity={'username': username, 'password': password})
-        logging.debug("tokens created")
-        response = jsonify({'login':True, 'accessToken': access_token,'code': 200 })
-        response.set_cookie('refresh_token', refresh_token, httponly=True)
-        set_access_cookies(response, access_token)
-        set_refresh_cookies(response, refresh_token)
+        print("tokens created")
+        response = make_response(jsonify({'accessToken': access_token, 'code': 200, 'login': True}))
+        response.set_cookie('refresh_token_cookie', refresh_token, domain='127.0.0.1:5001')
+        #set_access_cookies(response, access_token)
+        #set_refresh_cookies(response, refresh_token)
+        print(f"Refresh Response: {response.get_data(as_text=True)}")
+        print(f"Set-Cookie Header: {response.headers.get('Set-Cookie')}")
         response.headers.add("Access-Control-Allow-Origin", "*")
-        response.headers.add("Access-Control-Allow-Headers",
-                             "Content-Type, Authorization, Access-Control-Allow-Headers, Access-Control-Allow-Origin, Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers")
         response.headers.add("Access-Control-Allow-Credentials", "true")
         return response, 200
     response = jsonify({'error': 'Invalid username or password','code': 401})
     response.headers.add("Access-Control-Allow-Origin", "*")
-    response.headers.add("Access-Control-Allow-Headers",
-                         "Content-Type, Authorization, Access-Control-Allow-Headers, Access-Control-Allow-Origin, Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers")
     response.headers.add("Access-Control-Allow-Credentials", "true")
     return response, 401
 
@@ -257,18 +256,23 @@ def login():
 @app.route('/refresh', methods=['POST'])
 #@jwt_required(refresh=True)
 def refresh():
-    refresh_token = request.cookies.get('refresh_token')
+    print(f"Request Headers: {request.headers}")
+    print(f"Request Cookies: {request.cookies}")
+    #data = request.get_json()
+    #print(data)
+    refresh_token = request.headers.get('Set-Cookie')
+    print(f"Received refresh token: {refresh_token}")
 
     if refresh_token:
         try:
             # Decode the refresh token
-            decoded_token = jwt.decode(refresh_token, secret_key="CD42F6C8314FDD9A8427CCE1495AE44F1C8B456E1039257A87BD0BA6275E4918")
+            decoded_token = jwt.decode(refresh_token, key=os.getenv('REFRESH_TOKEN_SECRET'), algorithms=['HS256'])
 
             # You should verify the token and get user credentials if needed
             user_identity = decoded_token['identity']  # Or retrieve from your database
 
             # Generate a new access token
-            access_token = create_access_token(identity=user_identity, expires_delta=False)  # Token expiry time
+            access_token = create_access_token(identity=user_identity, expires_delta=False)
 
             return jsonify(accessToken=access_token), 200
 
