@@ -191,13 +191,8 @@ async def get_builder_data_props():
 
     response = jsonify(data)
     #response = data
-    response.headers.add("Access-Control-Allow-Origin", "*")
 
-    response.headers.add("ngrok-skip-browser-warning", '69420')
 
-    response.headers.add("Access-Control-Allow-Headers",
-                         "Content-Type, Authorization, Access-Control-Allow-Headers, Access-Control-Allow-Origin, Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers")
-    response.headers.add("Access-Control-Allow-Credentials", "true")
 
     return response
 '''
@@ -237,7 +232,9 @@ def login():
         refresh_token = create_refresh_token(identity={'username': username, 'password': password})
         print("tokens created")
         response = make_response(jsonify({'accessToken': access_token, 'code': 200, 'login': True}))
-        response.set_cookie('refresh_token_cookie', refresh_token, httponly=True, path='/', max_age=None, expires=None, samesite=None)
+        max_age_90_days = 90 * 24 * 60 * 60
+        expires_30_days = datetime.utcnow() + timedelta(days=30)
+        response.set_cookie('refresh_token_cookie', refresh_token, httponly=True, path='/', max_age=max_age_90_days, expires=expires_30_days, samesite=None)
         #set_access_cookies(response, access_token)
         #set_refresh_cookies(response, refresh_token)
         print(f"Refresh Response: {response.get_data(as_text=True)}")
@@ -254,7 +251,7 @@ def refresh():
     print(f"Request Cookies: {request.cookies}")
     #data = request.get_json()
     #print(data)
-    refresh_token = request.headers.get('Set-Cookie')
+    refresh_token = request.cookies.get('refresh_token_cookie')
     print(f"Received refresh token: {refresh_token}")
 
     if refresh_token:
