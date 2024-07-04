@@ -1001,7 +1001,8 @@ async def get_total_builder_data_props(props):
     end = start + page_size
 
     paginated_result = result[start:end]
-
+    print("paginated result : ", paginated_result)
+    print("=============================================================================================================")
 
 
     return json.dumps({

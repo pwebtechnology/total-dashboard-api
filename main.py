@@ -10,25 +10,26 @@ import jwt
 from functools import wraps
 import flask_jwt_extended
 from flask_jwt_extended import (JWTManager, create_access_token, jwt_required, get_jwt_identity, create_refresh_token,
-                                set_access_cookies,  set_refresh_cookies, unset_jwt_cookies, get_jwt, decode_token)
+                                set_access_cookies,  set_refresh_cookies, unset_jwt_cookies, get_jwt, decode_token, verify_jwt_in_request)
 from werkzeug.security import generate_password_hash, check_password_hash
 #from flask_mongoengine import MongoEngine
 from mongoengine import Document, StringField, connect
+from asgiref.sync import async_to_sync
 import os
 
 app = Flask(__name__)
 jwt_manager = JWTManager(app)
-CORS(app, supports_credentials=True)
+CORS(app,resources={r"/*": {"origins": "http://127.0.0.1:5173", "allow_headers": ["Authorization", "Content-Type","Access-Control-Allow-Origin"]}}, supports_credentials=True, expose_headers='Authorization')
 app.config['SECRET_KEY'] = "CD42F6C8314FDD9A8427CCE1495AE44F1C8B456E1039257A87BD0BA6275E4918" #generated from website - just for testing will change after tests passed
-app.config['JWT_SECRET_KEY'] = app.config['SECRET_KEY']
+app.config['JWT_SECRET_KEY'] = "CD42F6C8314FDD9A8427CCE1495AE44F1C8B456E1039257A87BD0BA6275E4918"
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(minutes=10)
 app.config['JWT_TOKEN_LOCATION'] = ['cookies']
 app.config['JWT_CSRF_IN_COOKIES'] = False
-app.config['JWT_ACCESS_COOKIE_PATH'] = '/refresh'
+app.config['JWT_ACCESS_COOKIE_PATH'] = '/'
 app.config['JWT_REFRESH_COOKIE_PATH'] = '/refresh'
 app.config['JWT_COOKIE_CSRF_PROTECT'] = False
-app.config['JWT_SECRET_KEY'] = os.getenv('ACCESS_TOKEN_SECRET')
-app.config['JWT_REFRESH_SECRET_KEY'] = os.getenv('REFRESH_TOKEN_SECRET')
+app.config['JWT_SECRET_KEY'] = "CD42F6C8314FDD9A8427CCE1495AE44F1C8B456E1039257A87BD0BA6275E4918"
+app.config['JWT_REFRESH_SECRET_KEY'] = "CD42F6C8314FDD9A8427CCE1495AE44F1C8B456E1039257A87BD0BA6275E4918"
 mongo_uri = "mongodb://NikKimp:NikKimp@172.23.2.15:27017/?tls=false&authMechanism=DEFAULT"
 connect(host=mongo_uri)
 
@@ -43,14 +44,24 @@ class Users(Document):
             'db': 'Users'}
 
 def token_required(f):
+    @wraps(f)
     def decorated(*args, **kwargs):
-        token = request.args.get('token')
+        print("request", request)
+        print("request headers", request.headers)
+        print("request cookies", request.cookies)
+        auth_header = request.headers.get('Authorization')
+        if auth_header:
+            token = auth_header.split(' ')[1]  # "Bearer <token>"
+            print('JWT Token:', token)
+        else: token = None
         if not token:
             return jsonify({'error': 'token is missing'}), 403
         try:
-            jwt.decode(token, app.config['secret_key'], algorithms="HS256")
+            print("try to decode token")
+            jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
+            print("token success decoded")
         except Exception as error:
-            return jsonify({'error': 'token is invalid or expired'})
+            return jsonify({'error': 'token is invalid or expired'}), 403
         return f(*args, **kwargs)
     return decorated
 
@@ -171,30 +182,36 @@ async def get_builder_data_total():
     return None
 
 
-@app.route('/get_builder_data_props', methods=['GET',
-                                               'OPTIONS'])  # params = created_from , created_to , ftd_from , ftd_to , registered_from , registered_to , group_by[]
-@jwt_required()
+@app.route('/get_builder_data_props', methods=['GET', 'OPTIONS'])  # params = created_from , created_to , ftd_from , ftd_to , registered_from , registered_to , group_by[]
+@jwt_required(locations=['headers'])
 async def get_builder_data_props():
-    pageIndex = int(request.args.get('pageIndex', 0))
-    pageSize = int(request.args.get('pageSize', 10))
-    dimentions = request.args.getlist('dimentions[]')
-    metrics = request.args.getlist('metrics[]')
-    logging.debug(metrics)
-    props = {
-        'pageIndex': pageIndex,
-        'pageSize': pageSize,
-        'dimentions': dimentions,
-        'metrics': metrics
-    }
-    #metrix = str()
-    data = await get_total_builder_data_props(props)
+    # Ensure the JWT is valid and present
+    try:
+        #identity = get_jwt_identity()
+        #logging.debug(f"JWT Identity: {identity}")
 
-    response = jsonify(data)
-    #response = data
+        # Extract query parameters
+        pageIndex = int(request.args.get('pageIndex', 0))
+        pageSize = int(request.args.get('pageSize', 10))
+        dimentions = request.args.getlist('dimentions[]')
+        metrics = request.args.getlist('metrics[]')
 
+        props = {
+            'pageIndex': pageIndex,
+            'pageSize': pageSize,
+            'dimentions': dimentions,
+            'metrics': metrics
+        }
 
-
-    return response
+        # Assuming get_total_builder_data_props is an async function
+        data = await get_total_builder_data_props(props)
+        print("data is :",data)
+        response = make_response(jsonify({'data': data, 'is_data':True}), 200)
+        response.headers.add("Access-Control-Request-Headers", "Authorization")
+        return response, 200
+    except Exception as e:
+        logging.error(f"Error occurred: {e}")
+        return make_response(jsonify({"error": "Internal Server Error"}), 500)
 '''
 @app.route("/login", methods=['GET', 'OPTIONS'])
 def login():
@@ -226,15 +243,19 @@ def login():
 
     username = data['username']
     password = data['password']
-    logging.debug("data readed correctly")
     if username in USERS and USERS[username]['password'] == password:
         access_token = create_access_token(identity={'username': username, 'password': password})
         refresh_token = create_refresh_token(identity={'username': username, 'password': password})
         print("tokens created")
-        response = make_response(jsonify({'accessToken': access_token, 'code': 200, 'login': True}))
+        response = make_response(jsonify({'accessToken': access_token, 'login': True,'username': username }))
         max_age_90_days = 90 * 24 * 60 * 60
         expires_30_days = datetime.utcnow() + timedelta(days=30)
-        response.set_cookie('refresh_token_cookie', refresh_token, httponly=True, path='/', max_age=max_age_90_days, expires=expires_30_days, samesite=None)
+        response.set_cookie('receive-cookie-deprecation', '1', httponly=True, path='/', max_age=max_age_90_days, expires=expires_30_days.strftime("%a, %d-%b-%Y %H:%M:%S GMT"), samesite='None', domain='172.23.2.15',secure=False )
+        response.set_cookie('refresh_token_cookie', refresh_token, httponly=True, path='/', max_age=max_age_90_days, expires=expires_30_days.strftime("%a, %d-%b-%Y %H:%M:%S GMT"), samesite='None', domain='172.23.2.15',secure=False)
+        response.set_cookie('access_token_cookie', refresh_token, httponly=True, path='/', max_age=max_age_90_days,
+                            expires=expires_30_days.strftime("%a, %d-%b-%Y %H:%M:%S GMT"), samesite='None',
+                            domain='172.23.2.15',secure=False)
+        #response.headers.add("Access-Control-Allow-Origin",'http://127.0.0.1:5173')
         #set_access_cookies(response, access_token)
         #set_refresh_cookies(response, refresh_token)
         print(f"Refresh Response: {response.get_data(as_text=True)}")
@@ -247,6 +268,7 @@ def login():
 @app.route('/refresh', methods=['POST'])
 #@jwt_required(refresh=True)
 def refresh():
+    print(verify_jwt_in_request(locations=['headers', 'cookies']))
     print(f"Request Headers: {request.headers}")
     print(f"Request Cookies: {request.cookies}")
     #data = request.get_json()
@@ -311,8 +333,9 @@ def refresh():
 
 
 @app.route("/protected", methods=['GET'])
-@jwt_required()
+#@token_required
 def protected():
+    print(verify_jwt_in_request(locations=['headers', 'cookies']))
     current_user = get_jwt_identity()
     response = jsonify(logged_in_as=current_user,code = 200)
     response.headers.add("Access-Control-Allow-Origin", "*")
@@ -332,7 +355,7 @@ def validate_token(token):
         return False
 
 @app.route("/logout", methods=['POST'])
-@jwt_required()
+@token_required
 def logout():
     response = jsonify({'logout': True})
     unset_jwt_cookies(response)
@@ -344,17 +367,18 @@ def logout():
 
 
 @app.route("/access", methods=['GET'])
-@jwt_required()
+@token_required
 def access():
     try:
+        print(verify_jwt_in_request(locations=['headers', 'cookies']))
         current_user = get_jwt_identity()
+        print(current_user)
         response = jsonify({'message': f'Hello, {current_user}!'})
-        response.headers.add("Access-Control-Allow-Origin", "*")
         response.headers.add("Access-Control-Allow-Headers",
                          "Content-Type, Authorization, Access-Control-Allow-Headers, Access-Control-Allow-Origin, Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers")
         response.headers.add("Access-Control-Allow-Credentials", "true")
-    except: response = jsonify({'error': 'Something went wrong, try to refresh the page or try again later', 'code': 403})
-    return response
+    except: response = jsonify({'error': 'Something went wrong, try to refresh the page or try again later'})
+    return response, 401
 
 
-asyncio.run(app.run(debug=True, host='0.0.0.0', port=5000))
+asyncio.run(app.run(debug=True, host='0.0.0.0', port=5001))
