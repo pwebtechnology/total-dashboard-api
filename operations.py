@@ -9,6 +9,7 @@ from collections import defaultdict
 from variables import *
 from functions import *
 from api import *
+from flask import jsonify
 
 async def get_retention_data_compare(props):
     data = await execute_data_from_retention_crm(props)
@@ -1005,14 +1006,14 @@ async def get_total_builder_data_props(props):
     print("=============================================================================================================")
 
 
-    return json.dumps({
+    return ({
         'pagination': {
             'pageIndex': page_index,
             'pageSize': page_size,
             'total_items': total_count,
             'total_pages': round(total_count/page_size,0)
         },
-        'records': paginated_result
+        'records': result
     })
 
     #return combined_data
