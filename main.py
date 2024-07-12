@@ -183,7 +183,7 @@ async def get_builder_data_total():
 
 
 @app.route('/get_builder_data_props', methods=['GET', 'OPTIONS'])  # params = created_from , created_to , ftd_from , ftd_to , registered_from , registered_to , group_by[]
-@jwt_required(locations=['headers'])
+#@jwt_required(locations=['headers'])
 async def get_builder_data_props():
     # Ensure the JWT is valid and present
     try:
@@ -237,6 +237,7 @@ USERS = {
 def login():
     data = request.get_json()
     logging.debug("here is login started")
+    print(data)
     if not data or not data.get('username') or not data.get('password'):
         response = jsonify({'error': 'Username and password are required','code': 400})
         return response, 400
@@ -251,7 +252,7 @@ def login():
         max_age_90_days = 90 * 24 * 60 * 60
         expires_30_days = datetime.utcnow() + timedelta(days=30)
         response.set_cookie('receive-cookie-deprecation', '1', httponly=True, path='/', max_age=max_age_90_days, expires=expires_30_days.strftime("%a, %d-%b-%Y %H:%M:%S GMT"), samesite='None', domain='172.23.2.15',secure=False )
-        response.set_cookie('refresh_token_cookie', refresh_token, httponly=True, path='/', max_age=max_age_90_days, expires=expires_30_days.strftime("%a, %d-%b-%Y %H:%M:%S GMT"), samesite='None', domain='172.23.2.15',secure=False)
+        response.set_cookie('refresh_token_cookie', refresh_token, httponly=True, path='/', max_age=max_age_90_days, expires=expires_30_days.strftime("%a, %d-%b-%Y %H:%M:%S GMT"), samesite='None', domain='pwebtechnology.com',secure=False)
         response.set_cookie('access_token_cookie', refresh_token, httponly=True, path='/', max_age=max_age_90_days,
                             expires=expires_30_days.strftime("%a, %d-%b-%Y %H:%M:%S GMT"), samesite='None',
                             domain='172.23.2.15',secure=False)
