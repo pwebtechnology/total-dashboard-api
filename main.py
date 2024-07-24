@@ -40,6 +40,7 @@ connect(host=mongo_uri)
 class Users(Document):
     username = StringField(max_length=250, unique=True, required=True)
     password = StringField(max_length=250, required=True)
+    role = StringField(max_length=250, required=True)
     meta = {'collection': 'user_creds',
             'db': 'Users'}
 
@@ -64,6 +65,20 @@ def token_required(f):
             return jsonify({'error': 'token is invalid or expired'}), 403
         return f(*args, **kwargs)
     return decorated
+
+def role_required(role_keyword):
+    def decorator(fn):
+        @wraps(fn)
+        @jwt_required()
+        def wrapper(*args, **kwargs):
+            identity = get_jwt_identity()
+            if role_keyword.lower() in identity['role'].lower():
+                return fn(*args, **kwargs)
+            else:
+                return jsonify({'error': 'Unauthorized access', 'code': 403}), 403
+        return wrapper
+    return decorator
+
 
 def get_user_pass(username):
     print(username)
@@ -235,6 +250,10 @@ USERS = {
 
 @app.route("/login", methods=['GET', 'POST'])
 def login():
+    uri = "mongodb://NikKimp:NikKimp@172.23.2.15:27017/?tls=false&authMechanism=DEFAULT"
+    client = MongoClient(uri, server_api=ServerApi('1'))
+    db = client['User']
+    user_collection = db['user_creds']
     data = request.get_json()
     logging.debug("here is login started")
     print(data)
@@ -244,26 +263,29 @@ def login():
 
     username = data['username']
     password = data['password']
-    if username in USERS and USERS[username]['password'] == password:
-        access_token = create_access_token(identity={'username': username, 'password': password})
-        refresh_token = create_refresh_token(identity={'username': username, 'password': password})
-        print("tokens created")
+    user = user_collection.find_one({'username': username})
+    if not user or user['password'] != password:
+        response = jsonify({'error': 'Invalid username or password', 'code': 401})
+        return response, 401
+    else :
+        role = user['role']
+        access_token = create_access_token(identity={'username': username, 'role': role})
+        refresh_token = create_refresh_token(identity={'username': username})
+        print("Tokens created")
         response = make_response(jsonify({'accessToken': access_token, 'login': True,'username': username }))
         max_age_90_days = 90 * 24 * 60 * 60
         expires_30_days = datetime.utcnow() + timedelta(days=30)
-        response.set_cookie('receive-cookie-deprecation', '1', httponly=True, path='/', max_age=max_age_90_days, expires=expires_30_days.strftime("%a, %d-%b-%Y %H:%M:%S GMT"), samesite='None', domain='172.23.2.15',secure=False )
+        response.set_cookie('receive-cookie-deprecation', '1', httponly=True, path='/', max_age=max_age_90_days, expires=expires_30_days.strftime("%a, %d-%b-%Y %H:%M:%S GMT"), samesite='None', domain='pwebtechnology.com',secure=False )
         response.set_cookie('refresh_token_cookie', refresh_token, httponly=True, path='/', max_age=max_age_90_days, expires=expires_30_days.strftime("%a, %d-%b-%Y %H:%M:%S GMT"), samesite='None', domain='pwebtechnology.com',secure=False)
         response.set_cookie('access_token_cookie', refresh_token, httponly=True, path='/', max_age=max_age_90_days,
                             expires=expires_30_days.strftime("%a, %d-%b-%Y %H:%M:%S GMT"), samesite='None',
-                            domain='172.23.2.15',secure=False)
+                            domain='pwebtechnology.com',secure=False)
         #response.headers.add("Access-Control-Allow-Origin",'http://127.0.0.1:5173')
         #set_access_cookies(response, access_token)
         #set_refresh_cookies(response, refresh_token)
         print(f"Refresh Response: {response.get_data(as_text=True)}")
         print(f"Set-Cookie Header: {response.headers.get('Set-Cookie')}")
         return response, 200
-    response = jsonify({'error': 'Invalid username or password','code': 401})
-    return response, 401
 
 
 @app.route('/refresh', methods=['POST'])
@@ -382,4 +404,7 @@ def access():
     return response, 401
 
 
-asyncio.run(app.run(host='0.0.0.0', port=5000))
+#asyncio.run(app.run(host='0.0.0.0', port=5000))
+
+if __name__=='__main__':
+    app.run(host='0.0.0.0', port = 5000)
