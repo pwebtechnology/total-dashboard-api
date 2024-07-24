@@ -636,6 +636,7 @@ async def get_retention_data_prev_day():
             timestamp_seconds = Trader_Ftd_Date / 1000000000
             Trader_Ftd_Date = datetime.utcfromtimestamp(timestamp_seconds)
         elif isinstance(Trader_Ftd_Date, str):
+            Trader_Ftd_Date = Trader_Ftd_Date[:-1]
             Trader_Ftd_Date = datetime.strptime(Trader_Ftd_Date, '%Y-%m-%dT%H:%M:%S.%f')
         else:
             pass
@@ -1016,5 +1017,4 @@ async def get_total_builder_data_props(props):
         'records': result
     })
 
-    #return combined_data
 
